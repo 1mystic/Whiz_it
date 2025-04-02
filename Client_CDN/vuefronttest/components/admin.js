@@ -1,4 +1,8 @@
 const dashboardStyles = `
+
+    .modal-body{
+        padding: 2rem !important;
+    }
     * {
         margin: 0;
         padding: 0;

@@ -186,16 +186,23 @@ addStyles(`
 .encloser {
     background: linear-gradient(135deg, #F8FAFC 0%, #EFF6FF 100%);
     display: flex;   
-    padding: 1rem 5rem 2rem 12rem;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 1rem auto;
     height: 100vh;
+    gap : 5vw;
+    margin-left: 12rem;
 }
 
 .left_enc {
+    margin-top: 2rem;
     flex: 1 1 0;
     display: flex;
     flex-direction: column;        
-    max-width: 35rem;
+    max-width: 45rem;
+    gap: 0.2rem;
 }
+
 
 .right_enc {
     padding: 0rem 1rem 0rem 3rem;
@@ -209,7 +216,7 @@ addStyles(`
 
 .t1 {
     font-family: 'Rubik', sans-serif;
-    font-size: 3.8rem;
+    font-size: 4.5rem;
     line-height: 1.2;
     margin-bottom: 1.7rem;
     color: rgb(62, 80, 45);
@@ -218,22 +225,23 @@ addStyles(`
 
 .t2 {
     font-family: 'Mitr', sans-serif;
-    color: rgb(107, 76, 87);
-    font-size: 1.6rem;
+    color: rgba(107, 76, 87, 0.78);
+    font-size: 2.2rem;
     margin: 1rem 0.5rem 3.5rem 0.3rem;
-    max-width: 35rem;
+    max-width: 45rem;
+    font-weight: 400;
 }
 
 .btn-start {
     background-color: rgba(245, 108, 77, 0.97);
     border: none;
-    padding: 1.03rem 2.1rem;
     border-radius: 5rem;
     font-weight: 800;
     transition: background-color 0.3s ease;
-    transition: border 0.2s ease;
-    font-size: 1.6rem;
+    transition: border 0.2s ease;    
     margin-left: 0rem;
+    font-size: 2.2rem;
+    padding: 1.63rem 2.6rem;
 }
 
 .btn-start:hover {
@@ -245,13 +253,13 @@ addStyles(`
 .btn-log {
     background-color: rgba(106, 206, 204, 0.97);
     border: none;
-    padding: 1.1rem 2.3rem;
     border-radius: 5rem;
     font-weight: 770;
     transition: background-color 0.3s ease;
     transition: border 0.2s ease;
-    font-size: 1.5rem;
     margin-left: 1rem;
+    font-size: 2.2rem;
+    padding: 1.53rem 2.6rem;
 }
 
 .btn-log:hover {
@@ -261,6 +269,7 @@ addStyles(`
 }
 
 .quiz-section {
+    
     padding: 0 4rem 0;
     border-bottom: 3px dashed #f0f0f0;
 }
