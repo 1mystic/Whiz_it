@@ -1,0 +1,30 @@
+TODO :
+
+- Admin- schedule quiz star time also - celery
+
+
+- Table in user summary in admin dash is good 
+
+- Advanced user Dashboard ranks
+
+- UI/UX +++ enahnce ++ feature 
+
+- Questionwise split summary for score
+
+- instant feedback for correct/incorrect answers.
+
+- Auto Quiz lock after expiry
+
+- Optimize API response times.
+
+- Secure endpoints with rate-limiting ( use caching decorators ) .
+- Use Redis caching for API optimization.
+
+- UI/UX Charts
+
+
+celery -A tasks.celery worker --loglevel=info
+celery -A tasks beat -l info
+
+celery -A tasks.celery worker --loglevel=debug
+celery -A tasks beat --loglevel=debug

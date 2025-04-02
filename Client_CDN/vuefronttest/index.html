@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue CDN App</title>
+  
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+
+    <!-- Custom Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@700&family=Mitr&family=Ubuntu+Mono&family=Lato&family=Kanit&family=Inter&family=Lexend+Deca&family=Lexend:wght@400;700&display=swap" rel="stylesheet">
+
+    <!--Favicon-->
+    <link rel="icon" href="/favicon.ico">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- VUe 3 -->
+    <script src="
+    https://cdn.jsdelivr.net/npm/vue@3.5.13/dist/vue.global.min.js
+    "></script>
+    <!-- Vue Router 4 CDN -->
+    <script src="
+    https://cdn.jsdelivr.net/npm/vue-router@4.5.0/dist/vue-router.global.min.js
+    "></script>
+    <!-- Vuex 4 CDN -->
+    <script src="
+    https://cdn.jsdelivr.net/npm/vuex@4.1.0/dist/vuex.global.min.js
+    "></script>
+    
+</head>
+<body>
+
+    <style>
+        h1, h2, h3, h4, h5, h6 {
+           color: rgba(58, 27, 35, 0.822);
+        }
+    </style>
+    
+
+    <div id="app">
+       
+       <div> ERROR </div>
+        <router-view :key="$route.fullPath"></router-view>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+
+    <!--  Load Vue first -->
+    <script src="https://unpkg.com/vue@3.2.31/dist/vue.global.js"></script>
+    
+    <!--  Load Vue Router and Vuex after Vue -->
+    <script src="https://unpkg.com/vue-router@4.1.6/dist/vue-router.global.js"></script>
+    <script src="https://unpkg.com/vuex@4.0.2/dist/vuex.global.js"></script>
+
+    <script>
+        //add style without duplicate declarations
+        function addStyles(styleContent) {
+            const styleId = 'component-styles';
+            let styleEl = document.getElementById(styleId);
+            
+            if (!styleEl) {
+                styleEl = document.createElement('style');
+                styleEl.id = styleId;
+                document.head.appendChild(styleEl);
+            }
+            
+            styleEl.textContent += styleContent;
+        }
+    </script>
+
+    <script src="./components/Land.js"></script>
+    <script src="./components/handle_no.js"></script>
+    <script src="./components/modal.js"></script>
+    <script src="./components/login.js"></script>
+    <script src="./components/signup.js"></script> 
+    
+    <script src="./components/usernavbar.js"></script>   
+    <script src="./components/Users/profile.js"></script>
+
+   
+    <script src="./components/Home.js"></script>
+    <script src="./components/About.js"></script> 
+    <script src="./components/sum.js"></script>  
+    <script src="./components/user_score.js"></script>  
+    <script src="./components/QuizView.js"></script>
+    <script src="./components/Users/User.js"></script>
+    <script src="./components/Users/Explore.js"></script>  
+    <script src="./components/Users/user_summary.js"></script>  
+    
+   
+    
+    <!--<script src="./components/admin_data/shared.js"></script>-->
+    <script src="./components/admin.js"></script>
+    <script src="./components//admin_data/adash.js"></script>
+    <script src="./components/admin_data/subjects.js"></script>
+    <script src="./components/admin_data/chapters.js"></script>
+    <script src="./components/admin_data/quizes.js"></script>    
+    <script src="./components/admin_data/questions.js"></script>
+    <script src="./components/admin_data/track_users.js"></script>
+    
+
+    <!--  Load  store -->
+    <script src="./store.js"></script>
+    
+    <!-- Load  router -->
+    <script src="./router.js"></script>
+    
+    <!-- Load nmain app -->
+    <script src="./main.js"></script>
+
+
+</body>
+</html>

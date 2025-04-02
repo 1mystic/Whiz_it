@@ -1,0 +1,348 @@
+openapi: 3.0.0
+info:
+  title: Whiz.it API
+  version: 1.0.0
+servers:
+  - url: http://127.0.0.1:5000
+  
+paths:
+
+  /api/send-notification:
+    post:
+      summary: Send test notification
+      description: Queues an email notification task
+      responses:
+        '200':
+          description: Email task queued successfully
+        '500':
+          description: Failed to queue email task
+
+  /api/export-quiz-history:
+    post:
+      summary: Export quiz history
+      description: Initiate CSV export of quiz history
+      security:
+        - bearerAuth: []
+      responses:
+        '202':
+          description: Export started
+        '500':
+          description: Export failed
+
+  /api/export_csv:
+    get:
+      summary: Get CSV export
+      description: Retrieve generated CSV file
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: CSV file returned
+        '400':
+          description: CSV generation failed
+    post:
+      summary: Request CSV export
+      description: Initiate user data export
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Export started
+        '400':
+          description: Export failed
+
+  /signup:
+    post:
+      summary: User registration
+      description: Create new user account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+                full_name:
+                  type: string
+      responses:
+        '201':
+          description: User created
+        '400':
+          description: User exists
+        '500':
+          description: Email error
+
+  /login:
+    post:
+      summary: User authentication
+      description: Get JWT access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login successful
+        '401':
+          description: Invalid credentials
+        '403':
+          description: User blocked
+
+  /logout:
+    post:
+      summary: User logout
+      description: Revoke JWT token
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Logout successful
+        '404':
+          description: User not found
+        '500':
+          description: Logout failed
+
+  /api/subjects:
+    get:
+      summary: List subjects
+      description: Get all subjects
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Subjects list
+    post:
+      summary: Create subject (Admin)
+      description: Add new subject
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '201':
+          description: Subject created
+        '404':
+          description: Subject not found
+
+  /api/subjects/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    put:
+      summary: Update subject (Admin)
+      description: Modify subject details
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '200':
+          description: Subject updated
+        '404':
+          description: Subject not found
+    delete:
+      summary: Delete subject (Admin)
+      description: Remove subject
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Subject deleted
+        '404':
+          description: Subject not found
+
+  /api/user/{username}:
+    get:
+      summary: Get user profile
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User profile retrieved successfully
+        '404':
+          description: User not found
+
+  /api/user/{id}:
+    get:
+      summary: Get user data by ID (Admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User data retrieved successfully
+        '404':
+          description: User not found
+        '500':
+          description: Internal server error
+
+  /api/block_user/{id}:
+    get:
+      summary: Block a user (Admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User blocked successfully
+        '404':
+          description: User not found
+        '500':
+          description: Internal server error
+  
+  /api/unblock_user/{id}:
+    get:
+      summary: Unblock a user (Admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User unblocked successfully
+        '404':
+          description: User not found
+        '500':
+          description: Internal server error
+  /api/users/scores:
+    get:
+      summary: Get scores for the current user
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User scores retrieved successfully
+  
+  /api/allusers/scores:
+    get:
+      summary: Get scores for all users
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: All user scores retrieved successfully
+  
+  /api/leaderboard:
+    get:
+      summary: Get leaderboard
+      responses:
+        '200':
+          description: Leaderboard retrieved successfully
+  /api/admin_dash:
+    get:
+      summary: Get admin dashboard statistics
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Admin dashboard statistics retrieved successfully
+        
+  /api/quizzes/{score_id}/user/{user}/history:
+    get:
+      summary: Get quiz history for a specific user and score
+      parameters:
+        - name: score_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: user
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Quiz history retrieved successfully
+        '404':
+          description: User or score not found
+          
+  /api/quizzes/{quiz_id}/submit:
+    post:
+      summary: Submit a quiz
+      parameters:
+        - name: quiz_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                answers:
+                  type: object
+      responses:
+        '201':
+          description: Quiz submitted successfully
+        '400':
+          description: Quiz has no questions
+        '404':
+          description: Quiz not found
+
+
+
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
