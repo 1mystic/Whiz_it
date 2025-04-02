@@ -3,10 +3,7 @@
 
 const usernavbar = {
     name: 'usernavbar',
-    components: {
-        modal
-    },
-
+   
     template: `
     <div class="app-container">
         <!-- Sidebar -->
@@ -62,78 +59,12 @@ const usernavbar = {
 
     data() {
         return {
-            isMobileMenuOpen: false,
-            isProfileMenuOpen: false,
             userName: this.$store.state.user || 'User',
-            isModalOpen: false
         };
     },
 
-    computed: {
-        userInitials() {
-            return this.userName
-                .split(' ')
-                .map(name => name[0])
-                .join('')
-                .toUpperCase();
-        },
-
-        userInitialsAvatar() {
-            const canvas = document.createElement('canvas');
-            const context = canvas.getContext('2d');
-            canvas.width = 40;
-            canvas.height = 40;
-
-            const hue = Math.abs(this.userName.split('').reduce((acc, char) => {
-                return acc + char.charCodeAt(0);
-            }, 0) % 360);
-
-            context.fillStyle = `hsl(${hue}, 70%, 60%)`;
-            context.beginPath();
-            context.arc(20, 20, 20, 0, Math.PI * 2);
-            context.fill();
-
-            context.fillStyle = 'white';
-            context.font = 'bold 16px Arial';
-            context.textAlign = 'center';
-            context.textBaseline = 'middle';
-            context.fillText(this.userInitials, 20, 20);
-
-            return canvas.toDataURL();
-        }
-    },
-
     methods: {
-        toggle_smenu() {
-            this.isMobileMenuOpen = !this.isMobileMenuOpen;
-        },
-        openUserModal() {
-            this.isModalOpen = true;
-        },
-
-        closeUserModal() {
-            this.isModalOpen = false;
-        },
-
-        handleModalOpen() {
-            console.log('Modal opened');
-        },
-
-        handleModalClose() {
-            console.log('Modal closed');
-        },
-
-        toggleMobileMenu() {
-            this.isMobileMenuOpen = !this.isMobileMenuOpen;
-            if (this.isMobileMenuOpen) {
-                this.isProfileMenuOpen = false;
-            }
-        },
-
-        toggleProfileMenu() {
-            this.isProfileMenuOpen = !this.isProfileMenuOpen;
-        },
-
+       
         async handleLogout() {
             try {
                 await this.$store.dispatch('logoutUser');
@@ -146,13 +77,6 @@ const usernavbar = {
         
     },
 
-    mounted() {
-        document.addEventListener('click', this.handleClickOutside);
-    },
-
-    beforeDestroy() {
-        document.removeEventListener('click', this.handleClickOutside);
-    }
 };
 
 // Add styles to document head

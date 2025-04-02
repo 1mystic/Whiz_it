@@ -31,7 +31,7 @@ const Explore = {
                 <div class="slider-track" ref="sliderTrack">
                   <!-- Quiz Card 1 -->
                   <div v-for="quiz in displayedQuizzes" :key="quiz.id">
-                    <div class="quiz-card">
+                    <div class="quiz-card" :class="{ 'selected': selectedSubject === quiz.subject_id }">
                       <div class="quiz-card-image">
                         <div class="bookmark-icon">
                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
@@ -52,7 +52,11 @@ const Explore = {
                             <span>{{ quiz.question_count }}</span>
                           </div>
                         </div>
-                        <button class="quiz-action">Start</button>
+                       <button @click="startQuiz(quiz.id)" 
+                        class="quiz-action"
+                        :disabled="isPastQuiz(quiz.date_of_quiz)">
+                        {{ isPastQuiz(quiz.date_of_quiz) ? 'Expired' : 'Attempt Quiz' }}
+                        </button>
                       </div>
                     </div>
                   </div> <!-- v-for -->
@@ -68,14 +72,26 @@ const Explore = {
             <!-- Quiz Categories -->
             <h2 class="section-title">Quiz Categories</h2>
             <div class="categories-grid">
-                <div v-for="subject in subjects" :key="subject.id" class="category-card">
+                <div 
+                  v-for="subject in subjects" 
+                  :key="subject.id" 
+                  class="category-card"
+                  @click="selectSubject(subject)"
+                  :class="{ 'selected': selectedSubject === subject.id }"
+                >
                  
                       <div class="category-icon">
                           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5M9 14c-.2-1-.7-1.7-1.5-2.5M15 14a5 5 0 0 1-6 0"/><path d="M22 6c0 10-7 16.5-10 16.5S2 16 2 6m20 0c0-1.7-1.3-3-4-3-2 0-4 1-5 2-1-1-3-2-5-2-2.7 0-4 1.3-4 3h18Z"/></svg>
                       </div>
                       <span>{{subject.name}}</span>
                 </div>
-                <div v-for="chapter in chapters" :key="chapter.id" class="category-card">
+                <div 
+                  v-for="chapter in chapters" 
+                  :key="chapter.id" 
+                  class="category-card"
+                  @click="selectChapter(chapter)"
+                  :class="{ 'selected': selectedChapter === chapter.id }"
+                >
                  
                       <div class="category-icon">
                           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5M9 14c-.2-1-.7-1.7-1.5-2.5M15 14a5 5 0 0 1-6 0"/><path d="M22 6c0 10-7 16.5-10 16.5S2 16 2 6m20 0c0-1.7-1.3-3-4-3-2 0-4 1-5 2-1-1-3-2-5-2-2.7 0-4 1.3-4 3h18Z"/></svg>
@@ -115,12 +131,7 @@ const Explore = {
       position: 0,
       isPaused: false,
       isManuallyNavigating: false,
-      animationFrameId: null,
-      cardWidthIncludingGap: 0,
-      initialCardsDuplicated: false,
-      autoScrollSpeed: 0.5, // Pixels per frame (~30px/sec @ 60fps)
-      transitionDuration: 300, // ms
-      
+       
       // API Data
       userScores: [],
       subjects: [],
@@ -132,7 +143,8 @@ const Explore = {
       loading: false,
       userName: 'Student',
       userEmail: '',         
-      availableQuizzes: []
+      availableQuizzes: [],
+     
 
 
     };
@@ -292,20 +304,22 @@ async created() {
           return this.chapters.find(chapter => chapter.id === chapterId);
       },
       startQuiz(quizId) {
-          window.open(this.$router.resolve({ path: `/quiz/${quizId}` }).href, '_blank');
-      },
+       const old_quiz = this.userScores.find(quiz => quiz.quiz_id === quizId);
+       if (old_quiz) {
+           alert("You have already attempted this quiz.");
+           return;
+       }
+
+      this.attemptedQuizzes.push(quizId);
+        
+      window.open(this.$router.resolve({ path: `/quiz/${quizId}` }).href, '_blank');
+  },
       filterQuizzes() {
           this.fetchQuizzes();
       },
     // --- Initialization & Setup ---
     setupSlider() {
-        // Ensure refs are available before proceeding
-        if (!this.$refs.sliderContainer || !this.$refs.sliderTrack) {
-             console.error("Slider refs not found during setup.");
-             // Optionally retry after a short delay
-             // setTimeout(this.setupSlider, 100);
-             return;
-        }
+      
 
         this.$nextTick(() => {
             this.calculateCardWidth();
@@ -364,110 +378,7 @@ async created() {
       console.log(`Calculated card width: ${cardWidth}, gap: ${cardGap}, total: ${this.cardWidthIncludingGap}`);
     },
 
-    duplicateInitialCards() {
-      const sliderTrack = this.$refs.sliderTrack;
-      const sliderContainer = this.$refs.sliderContainer;
 
-      if (!sliderTrack || !sliderContainer || this.cardWidthIncludingGap <= 0) {
-           console.error("Cannot duplicate cards: Missing refs or invalid card width.");
-           return;
-      }
-
-      const sliderContainerWidth = sliderContainer.offsetWidth;
-       // Calculate how many cards fit (+ a buffer)
-      const cardsInView = Math.ceil(sliderContainerWidth / this.cardWidthIncludingGap);
-      const cardsToDuplicateCount = cardsInView + 2; // Buffer for smooth wrapping
-
-      const originalCards = Array.from(sliderTrack.querySelectorAll('.quiz-card'));
-      const numOriginalCards = originalCards.length;
-
-        if (numOriginalCards === 0) {
-            console.warn("No original cards found to duplicate.");
-            return;
-        }
-
-      console.log(`Container: ${sliderContainerWidth}px, Card+Gap: ${this.cardWidthIncludingGap}px, InView: ${cardsInView}, Duplicating: ${cardsToDuplicateCount}`);
-
-       // Check if duplication is actually needed (maybe there are already enough cards)
-       // And only duplicate if we haven't done it before
-       // Compare with numOriginalCards to avoid duplicating the already duplicated ones
-       if (sliderTrack.children.length === numOriginalCards) {
-            const fragment = document.createDocumentFragment();
-            for (let i = 0; i < Math.min(cardsToDuplicateCount, numOriginalCards) ; i++) {
-                const clone = originalCards[i % numOriginalCards].cloneNode(true); // Use modulo for safety
-                fragment.appendChild(clone);
-            }
-            sliderTrack.appendChild(fragment);
-            console.log("Duplicated cards. Total cards now:", sliderTrack.children.length);
-       } else {
-           console.log("Skipping duplication, cards seem already present.");
-       }
-    },
-
-    // --- Animation ---
-    startAnimation() {
-        if (this.animationFrameId) {
-            cancelAnimationFrame(this.animationFrameId);
-        }
-         // Make sure we have a width before starting
-         if(this.cardWidthIncludingGap <= 0) {
-             console.warn("Cannot start animation without valid card width.");
-             return;
-         }
-         console.log("Starting animation...");
-         this.isPaused = false; // Ensure it's not paused initially
-        this.animate();
-    },
-
-    animate() {
-        const sliderTrack = this.$refs.sliderTrack;
-        // Combine checks for clarity
-        if (!sliderTrack || this.isPaused || this.isManuallyNavigating || this.cardWidthIncludingGap <= 0) {
-             this.animationFrameId = requestAnimationFrame(this.animate); // Keep checking
-            return;
-        }
-
-        this.position -= this.autoScrollSpeed;
-
-        // Wrap around check
-        if (Math.abs(this.position) >= this.cardWidthIncludingGap) {
-            const firstCard = sliderTrack.querySelector('.quiz-card'); // Re-query inside loop if needed
-            if (firstCard) {
-                sliderTrack.appendChild(firstCard); // Move DOM element
-                this.position += this.cardWidthIncludingGap; // Adjust logical position INSTANTLY
-                 // Apply the adjusted position immediately without transition
-                 // This prevents visual jump because the item moved visually matches the position reset
-                 sliderTrack.style.transition = 'none';
-                 sliderTrack.style.transform = `translateX(${this.position}px)`;
-            } else {
-                 console.warn("Could not find first card to move during wrap around.")
-                 cancelAnimationFrame(this.animationFrameId); // Stop if something's wrong
-                 return;
-            }
-        } else {
-            // Apply the incremental position update smoothly
-             sliderTrack.style.transition = 'none'; // Ensure no CSS transition interferes
-            sliderTrack.style.transform = `translateX(${this.position}px)`;
-        }
-
-
-        this.animationFrameId = requestAnimationFrame(this.animate); // Continue loop
-    },
-
-    pauseAnimation() {
-        if (!this.isManuallyNavigating) { // Don't allow hover pause *during* manual nav transition
-             console.log("Animation paused (hover)");
-            this.isPaused = true;
-        }
-    },
-
-    resumeAnimation() {
-        if (!this.isManuallyNavigating) { // Don't resume if manual nav is finishing
-             console.log("Animation resumed (hover end)");
-            this.isPaused = false;
-            // Animation loop (`animate`) will pick up the change on its next frame check
-        }
-    },
 
     // --- Navigation ---
     navigate(direction) {
@@ -555,52 +466,15 @@ async created() {
     navigateNext() {
         this.navigate('next');
     },
-
-    // --- Utility & Lifecycle ---
-    resetSliderPosition(restartAnim = true) {
-      const sliderTrack = this.$refs.sliderTrack;
-      if (!sliderTrack) return;
-       console.log("Resetting slider position.");
-      cancelAnimationFrame(this.animationFrameId);
-      this.position = 0;
-      sliderTrack.style.transition = 'none';
-      sliderTrack.style.transform = 'translateX(0px)';
-      if (restartAnim) {
-          // Needs recalculation/duplication checks potentially
-           this.startAnimation();
-      }
+    selectSubject(subject) {
+      this.selectedSubject = this.selectedSubject === subject.id ? null : subject.id;
+      this.selectedChapter = null; // Deselect chapter when subject changes
+    },
+    selectChapter(chapter) {
+      this.selectedChapter = this.selectedChapter === chapter.id ? null : chapter.id;
+      this.selectedSubject = null; // Deselect subject when chapter changes
     },
 
-    handleResize() {
-        // Simple resize handling: Recalculate and reset.
-        // Debounce recommended for performance in real apps.
-        console.log("Window resized, re-initializing slider...");
-         cancelAnimationFrame(this.animationFrameId); // Stop current animation
-         this.isManuallyNavigating = false; // Reset flags
-         this.isPaused = false;
-         this.initialCardsDuplicated = false; // Allow duplication again if needed
-         this.position = 0; // Reset position
-
-        // Remove potentially old duplicated cards before re-setup (simplest way)
-         const sliderTrack = this.$refs.sliderTrack;
-         if(sliderTrack) {
-            const originalCardCount = 3; // ** IMPORTANT: Hardcoded based on your initial HTML **
-                                      // Make this dynamic if the initial cards change
-            while(sliderTrack.children.length > originalCardCount) {
-                sliderTrack.removeChild(sliderTrack.lastChild);
-            }
-            sliderTrack.style.transform = 'translateX(0px)'; // Ensure visually reset
-         }
-
-         this.setupSlider(); // Re-run the setup process
-    },
-
-    cleanup() {
-        console.log("Cleaning up slider component");
-        cancelAnimationFrame(this.animationFrameId);
-        window.removeEventListener('resize', this.handleResize);
-        // Remove hover listeners if added programmatically (not needed here as they are in template)
-    }
   },
   mounted() {
     this.fetchUserScores();
@@ -625,7 +499,16 @@ async created() {
   // }
 };
 
+
+
 const explore_styles= `
+
+.selected {
+  background-color:rgba(191, 255, 132, 0.62);
+  border: 2px solid #333;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: scale(1.05);
+}
 
 .section-title {
   font-size: 1.75rem;
@@ -666,8 +549,9 @@ const explore_styles= `
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background-color: white;
-  border: 1px solid #e5e5e5;
+  background-color: rgba(255, 255, 255, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  color: rgba(0, 0, 0, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -675,11 +559,13 @@ const explore_styles= `
   pointer-events: auto;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
+
 }
 
 .slider-nav:hover {
   background-color: #f5f5f5;
   transform: scale(1.05);
+  color: rgba(0, 0, 0, 0.8);
 }
 
 .slider-prev {

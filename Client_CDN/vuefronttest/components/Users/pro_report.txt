@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Preparation Dashboard</title>
+    <style>
+        :root {
+            --primary-color: #ff5733;
+            --secondary-color: #3a3a3a;
+            --bg-color: #f5f5f5;
+            --card-bg: white;
+            --text-color: #333;
+            --border-radius: 8px;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #ddd;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .user-detail h2 {
+            margin: 0;
+            font-size: 18px;
+        }
+        
+        .user-detail p {
+            margin: 0;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .search-bar {
+            display: flex;
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 8px 16px;
+            box-shadow: var(--shadow);
+            width: 300px;
+        }
+        
+        .search-bar input {
+            border: none;
+            flex-grow: 1;
+            outline: none;
+            font-size: 14px;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+        
+        .performance-card {
+            text-align: center;
+            position: relative;
+        }
+        
+        .progress-ring {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 20px;
+        }
+        
+        .progress-circle {
+            fill: none;
+            stroke-width: 15;
+            stroke-linecap: round;
+        }
+        
+        .progress-circle-bg {
+            stroke: #e6e6e6;
+        }
+        
+        .progress-circle-value {
+            stroke: var(--primary-color);
+            transform-origin: center;
+            transform: rotate(-90deg);
+        }
+        
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .performance-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            flex: 1;
+            padding: 10px;
+            border-radius: var(--border-radius);
+        }
+        
+        .stat-item h4 {
+            margin: 10px 0 5px;
+            font-size: 14px;
+        }
+        
+        .stat-item p {
+            margin: 0;
+            font-size: 12px;
+        }
+        
+        .topic-list {
+            margin-top: 20px;
+        }
+        
+        .topic-item {
+            margin-bottom: 25px;
+        }
+        
+        .topic-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .topic-title {
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background-color: #e6e6e6;
+            border-radius: 5px;
+            margin: 5px 0;
+            overflow: hidden;
+        }
+        
+        .progress-value {
+            height: 100%;
+            border-radius: 5px;
+        }
+        
+        .topic-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .material-suggestions {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .material-card {
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .material-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+        }
+        
+        .material-icon {
+            width: 40px;
+            height: 40px;
+            background-color: #f0f0f0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        
+        .material-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .material-description {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .add-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        .filters {
+            display: flex;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        
+        .filter-btn {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            padding: 8px 15px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-btn.active {
+            background: var(--secondary-color);
+            color: white;
+            border-color: var(--secondary-color);
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .material-suggestions {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="user-info">
+                <div class="user-avatar">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                </div>
+                <div class="user-detail">
+                    <h2>Premium User</h2>
+                    <p>Personalized Preparation Plan</p>
+                </div>
+            </div>
+            <div class="search-bar">
+                <input type="text" placeholder="Search for topics...">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+            </div>
+        </header>
+        
+        <div class="dashboard-grid">
+            <!-- Left column -->
+            <div class="left-column">
+                <div class="card performance-card">
+                    <h3>Performance Overview</h3>
+                    <div class="progress-ring">
+                        <svg width="150" height="150" viewBox="0 0 150 150">
+                            <circle class="progress-circle progress-circle-bg" cx="75" cy="75" r="60" />
+                            <circle class="progress-circle progress-circle-value" cx="75" cy="75" r="60" stroke-dasharray="377" stroke-dashoffset="150" />
+                        </svg>
+                        <div class="progress-text">60%</div>
+                    </div>
+                    <p>Overall Mastery</p>
+                    
+                    <div class="performance-stats">
+                        <div class="stat-item">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+                                <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+                                <line x1="6" y1="1" x2="6" y2="4"></line>
+                                <line x1="10" y1="1" x2="10" y2="4"></line>
+                                <line x1="14" y1="1" x2="14" y2="4"></line>
+                            </svg>
+                            <h4>48</h4>
+                            <p>Quizzes Taken</p>
+                        </div>
+                        <div class="stat-item">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"></path>
+                                <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+                            </svg>
+                            <h4>75%</h4>
+                            <p>Success Rate</p>
+                        </div>
+                        <div class="stat-item">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                            <h4>32h</h4>
+                            <p>Study Time</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3>Focus Areas</h3>
+                    <div class="topic-list">
+                        <div class="topic-item">
+                            <div class="topic-header">
+                                <span class="topic-title">JavaScript Arrays</span>
+                                <span>62%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-value" style="width: 62%; background-color: #ff5733;"></div>
+                            </div>
+                            <div class="topic-stats">
+                                <span>12 quizzes taken</span>
+                                <span>Last: 2 days ago</span>
+                            </div>
+                        </div>
+                        
+                        <div class="topic-item">
+                            <div class="topic-header">
+                                <span class="topic-title">CSS Flexbox</span>
+                                <span>45%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-value" style="width: 45%; background-color: #ff9900;"></div>
+                            </div>
+                            <div class="topic-stats">
+                                <span>8 quizzes taken</span>
+                                <span>Last: 5 days ago</span>
+                            </div>
+                        </div>
+                        
+                        <div class="topic-item">
+                            <div class="topic-header">
+                                <span class="topic-title">React Hooks</span>
+                                <span>28%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-value" style="width: 28%; background-color: #ff3333;"></div>
+                            </div>
+                            <div class="topic-stats">
+                                <span>5 quizzes taken</span>
+                                <span>Last: 1 week ago</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right column -->
+            <div class="right-column">
+                <div class="card">
+                    <h3>Your Customized Preparation Plan</h3>
+                    <div class="filters">
+                        <button class="filter-btn active">All Topics</button>
+                        <button class="filter-btn">Weak Areas</button>
+                        <button class="filter-btn">Recently Attempted</button>
+                        <button class="filter-btn">Recommended</button>
+                    </div>
+                    
+                    <div class="topic-item">
+                        <div class="topic-header">
+                            <span class="topic-title">React Hooks</span>
+                            <span style="color: #ff3333; font-weight: bold;">Priority: High</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-value" style="width: 28%; background-color: #ff3333;"></div>
+                        </div>
+                        <div class="topic-stats">
+                            <span>Mastery: 28%</span>
+                            <span>Recommended: 4 hours</span>
+                        </div>
+                        
+                        <h4>Recommended Materials</h4>
+                        <div class="material-suggestions">
+                            <div class="material-card">
+                                <div class="material-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                                    </svg>
+                                </div>
+                                <div class="material-title">Understanding React Hooks</div>
+                                <div class="material-description">Comprehensive guide on useState, useEffect, and custom hooks</div>
+                                <button class="add-btn">Add to Plan</button>
+                            </div>
+                            
+                            <div class="material-card">
+                                <div class="material-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polygon points="23 7 16 12 23 17 23 7"></polygon>
+                                        <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                                    </svg>
+                                </div>
+                                <div class="material-title">Video Tutorial: Hooks in Action</div>
+                                <div class="material-description">45 min practical tutorial with code examples</div>
+                                <button class="add-btn">Add to Plan</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="topic-item" style="margin-top: 30px;">
+                        <div class="topic-header">
+                            <span class="topic-title">CSS Flexbox</span>
+                            <span style="color: #ff9900; font-weight: bold;">Priority: Medium</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-value" style="width: 45%; background-color: #ff9900;"></div>
+                        </div>
+                        <div class="topic-stats">
+                            <span>Mastery: 45%</span>
+                            <span>Recommended: 2 hours</span>
+                        </div>
+                        
+                        <h4>Recommended Materials</h4>
+                        <div class="material-suggestions">
+                            <div class="material-card">
+                                <div class="material-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                                        <polyline points="13 2 13 9 20 9"></polyline>
+                                    </svg>
+                                </div>
+                                <div class="material-title">Flexbox Cheatsheet</div>
+                                <div class="material-description">Quick reference guide with all properties and examples</div>
+                                <button class="add-btn">Add to Plan</button>
+                            </div>
+                            
+                            <div class="material-card">
+                                <div class="material-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+                                        <polyline points="14 2 14 8 20 8"></polyline>
+                                        <circle cx="10" cy="13" r="2"></circle>
+                                        <path d="M10 13v5"></path>
+                                        <path d="M14 13h.01"></path>
+                                    </svg>
+                                </div>
+                                <div class="material-title">Flexbox Interactive Practice</div>
+                                <div class="material-description">Hands-on exercises to master layout techniques</div>
+                                <button class="add-btn">Add to Plan</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample data for demonstration
+        const userData = {
+            username: "Premium User",
+            plan: "Personalized Preparation Plan",
+            performance: {
+                overallMastery: 60,
+                quizzesTaken: 48,
+                successRate: 75,
+                studyTime: 32
+            },
+            focusAreas: [
+                {
+                    title: "JavaScript Arrays",
+                    mastery: 62,
+                    quizzesTaken: 12,
+                    lastAttempt: "2 days ago",
+                    priority: "Medium"
+                },
+                {
+                    title: "CSS Flexbox",
+                    mastery: 45,
+                    quizzesTaken: 8,
+                    lastAttempt: "5 days ago",
+                    priority: "Medium"
+                },
+                {
+                    title: "React Hooks",
+                    mastery: 28,
+                    quizzesTaken: 5,
+                    lastAttempt: "1 week ago",
+                    priority: "High"
+                }
+            ],
+            recommendedMaterials: {
+                "React Hooks": [
+                    {
+                        title: "Understanding React Hooks",
+                        type: "guide",
+                        description: "Comprehensive guide on useState, useEffect, and custom hooks"
+                    },
+                    {
+                        title: "Video Tutorial: Hooks in Action",
+                        type: "video",
+                        description: "45 min practical tutorial with code examples"
+                    }
+                ],
+                "CSS Flexbox": [
+                    {
+                        title: "Flexbox Cheatsheet",
+                        type: "document",
+                        description: "Quick reference guide with all properties and examples"
+                    },
+                    {
+                        title: "Flexbox Interactive Practice",
+                        type: "interactive",
+                        description: "Hands-on exercises to master layout techniques"
+                    }
+                ]
+            }
+        };
+
+        // Function to update the dashboard with fetched data
+        function updateDashboard(data) {
+            // Update progress circle
+            const circumference = 2 * Math.PI * 60; // 2πr where r=60
+            const progressCircle = document.querySelector('.progress-circle-value');
+            const progressOffset = circumference - (data.performance.overallMastery / 100) * circumference;
+            progressCircle.style.strokeDasharray = circumference;
+            progressCircle.style.strokeDashoffset = progressOffset;
+            
+            // Update progress text
+            document.querySelector('.progress-text').textContent = `${data.performance.overallMastery}%`;
+            
+            // Add event listeners to filter buttons
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    // Filter logic would go here
+                });
+            });
+            
+            // Add event listeners to material cards
+            const addButtons = document.querySelectorAll('.add-btn');
+            addButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const materialTitle = this.parentElement.querySelector('.material-title').textContent;
+                    alert(`Added "${materialTitle}" to your preparation plan!`);
+                    this.textContent = "Added ✓";
+                    this.style.backgroundColor = "#4CAF50";
+                    this.disabled = true;
+                });
+            });
+        }
+        
+        // Initialize dashboard with sample data
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDashboard(userData);
+            
+            // Simulate real data fetching
+            // In a real app, you would fetch data from your backend
+            function fetchUserData() {
+                return new Promise((resolve) => {
+                    setTimeout(() => resolve(userData), 500);
+                });
+            }
+            
+            fetchUserData().then(data => {
+                updateDashboard(data);
+            });
+        });
+    </script>
+</body>
+</html>
+
+
+Okay, let's outline how to create this premium preparation plan page using Flask and the Gemini API.
+
+Conceptual Overview:
+
+User Authentication: Ensure you have a system in place to identify premium users who are logged in.
+Database Interaction: You'll need to interact with your database to retrieve the user's attempted quizzes and the questions within them.
+Topic Extraction: From the quiz questions, you'll need to identify the relevant topics. This might involve having a topics field in your questions table or a separate question_topics table.
+Gemini API Call: Send the identified topics to the Gemini API to generate preparation material.
+Data Formatting: Structure the AI-generated content in a way that's easy to display on the frontend.
+Flask Route and Template: Create a Flask route to handle the request and a Jinja template to render the preparation plan.
+Here's a step-by-step guide:
+
+1. Database Schema (Illustrative - Adapt to your actual schema):
+
+SQL
+
+-- Users Table
+CREATE TABLE users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT UNIQUE NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    is_premium BOOLEAN DEFAULT FALSE -- Flag for premium users
+    -- ... other user details
+);
+
+-- Quizzes Table
+CREATE TABLE quizzes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL
+    -- ... other quiz details
+);
+
+-- Questions Table
+CREATE TABLE questions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    quiz_id INTEGER NOT NULL,
+    text TEXT NOT NULL,
+    topic TEXT NOT NULL, -- Or a foreign key to a topics table
+    -- ... other question details (options, correct answer, etc.)
+    FOREIGN KEY (quiz_id) REFERENCES quizzes(id)
+);
+
+-- User Attempts Table
+CREATE TABLE user_attempts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    quiz_id INTEGER NOT NULL,
+    attempted_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    score INTEGER,
+    -- ... other attempt details
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (quiz_id) REFERENCES quizzes(id)
+);
+
+-- User Answers Table (Optional, but helpful for detailed analysis)
+CREATE TABLE user_answers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    attempt_id INTEGER NOT NULL,
+    question_id INTEGER NOT NULL,
+    selected_answer TEXT,
+    is_correct BOOLEAN,
+    FOREIGN KEY (attempt_id) REFERENCES user_attempts(id),
+    FOREIGN KEY (question_id) REFERENCES questions(id)
+);
+2. Install the Gemini API Client:
+
+Bash
+
+pip install google-generativeai
+3. Flask Backend (app.py):
+
+Python
+
+from flask import Flask, render_template, session, redirect, url_for
+import sqlite3
+import google.generativeai as genai
+from dotenv import load_dotenv
+import os
+
+load_dotenv()  # Load environment variables from .env file
+
+app = Flask(__name__)
+app.secret_key = 'your_secret_key'  # Replace with a strong secret key
+
+# Configure Gemini API
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+if not GOOGLE_API_KEY:
+    raise ValueError("GOOGLE_API_KEY environment variable not set.")
+genai.configure(api_key=GOOGLE_API_KEY)
+model = genai.GenerativeModel('gemini-pro')
+
+DATABASE = 'your_database.db'  # Replace with your database file
+
+def get_db():
+    db = getattr(g, '_database', None)
+    if db is None:
+        db = g._database = sqlite3.connect(DATABASE)
+        db.row_factory = sqlite3.Row  # Access columns by name
+    return db
+
+@app.teardown_appcontext
+def close_connection(exception):
+    db = getattr(g, '_database', None)
+    if db is not None:
+        db.close()
+
+def query_db(query, args=(), one=False):
+    cur = get_db().execute(query, args)
+    rv = cur.fetchall()
+    cur.close()
+    return (rv[0] if rv else None) if one else rv
+
+def execute_db(query, args=()):
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute(query, args)
+    conn.commit()
+    cur.close()
+
+# Example route to check if user is logged in and premium (adapt to your auth system)
+def is_premium_user():
+    # Replace with your actual authentication and premium check logic
+    if 'user_id' in session:
+        user = query_db("SELECT is_premium FROM users WHERE id = ?", (session['user_id'],), one=True)
+        return user and user['is_premium']
+    return False
+
+@app.route('/premium/preparation')
+def premium_preparation_plan():
+    if not is_premium_user():
+        return redirect(url_for('login')) # Redirect to login if not premium or logged in
+
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('login'))
+
+    # 1. Fetch Attempted Quizzes
+    attempted_quizzes = query_db("""
+        SELECT q.id AS quiz_id, q.title AS quiz_title
+        FROM user_attempts ua
+        JOIN quizzes q ON ua.quiz_id = q.id
+        WHERE ua.user_id = ?
+        GROUP BY q.id
+    """, (user_id,))
+
+    if not attempted_quizzes:
+        return render_template('premium_preparation.html', preparation_plan=None)
+
+    # 2. Identify Topics from Attempted Quizzes
+    topics = set()
+    for quiz in attempted_quizzes:
+        questions = query_db("SELECT DISTINCT topic FROM questions WHERE quiz_id = ?", (quiz['quiz_id'],))
+        for question in questions:
+            topics.add(question['topic'])
+
+    if not topics:
+        return render_template('premium_preparation.html', preparation_plan=None)
+
+    # 3. Generate Preparation Material using Gemini API
+    prompt = f"Generate a systematic preparation plan for the following topics: {', '.join(topics)}. Include key concepts, study strategies, and potential areas to focus on for each topic."
+
+    try:
+        response = model.generate_content(prompt)
+        preparation_plan_text = response.text
+        # You might want to further process or structure this text
+        preparation_plan = {"overall": preparation_plan_text} # Basic structure
+    except Exception as e:
+        print(f"Error generating preparation plan: {e}")
+        preparation_plan = {"error": "Failed to generate preparation plan."}
+
+    # 4. Render the preparation plan in the template
+    return render_template('premium_preparation.html', preparation_plan=preparation_plan, attempted_quizzes=attempted_quizzes)
+
+if __name__ == '__main__':
+    from flask import g
+    app.run(debug=True)
+4. Create the Flask Template (templates/premium_preparation.html):
+
+HTML
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Premium Preparation Plan</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .topic-plan {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Your Premium Preparation Plan</h1>
+
+        {% if preparation_plan %}
+            {% if preparation_plan.error %}
+                <p class="error">{{ preparation_plan.error }}</p>
+            {% else %}
+                <h2>Based on your attempted quizzes:</h2>
+                <ul>
+                    {% for quiz in attempted_quizzes %}
+                        <li>{{ quiz.quiz_title }}</li>
+                    {% endfor %}
+                </ul>
+
+                <h2>Overall Preparation Plan:</h2>
+                <div class="topic-plan">
+                    <p>{{ preparation_plan.overall|replace('\n', '<br>')|safe }}</p>
+                </div>
+
+                {# You can further structure the preparation_plan if you process the Gemini output more granularly #}
+            {% endif %}
+        {% else %}
+            <p>No attempted quizzes found yet. Take some quizzes to generate your personalized preparation plan!</p>
+        {% endif %}
+    </div>
+</body>
+</html>
+5. Set up Environment Variables (.env file):
+
+Create a .env file in the same directory as your app.py and add your Gemini API key:
+
+GOOGLE_API_KEY=YOUR_GEMINI_API_KEY
+Explanation:
+
+Import necessary libraries: Flask, sqlite3 for database interaction, google.generativeai for Gemini, dotenv for environment variables.
+Database Connection: Functions get_db, close_connection, query_db, and execute_db help manage the database connection.
+is_premium_user(): This function (you'll need to implement your actual logic) checks if the current user is logged in and has premium status.
+/premium/preparation Route:
+Checks if the user is premium. If not, redirects to the login page.
+Retrieves the user_id from the session.
+Fetches Attempted Quizzes: Queries the user_attempts and quizzes tables to get a list of quizzes the user has completed.
+Identifies Topics: Iterates through the attempted quizzes and queries the questions table to get the unique topics associated with the questions in those quizzes.
+Generates Preparation Material:
+Constructs a prompt for the Gemini API, including the list of identified topics.
+Calls the model.generate_content() method to get the AI-generated preparation plan.
+Handles potential errors during the API call.
+Renders Template: Passes the preparation_plan and attempted_quizzes data to the premium_preparation.html template.
+premium_preparation.html Template:
+Displays a heading.
+Checks if preparation_plan exists.
+If there's an error, displays the error message.
+Otherwise, lists the attempted quizzes and displays the overall preparation plan generated by Gemini. The |replace('\n', '<br>')|safe filter is used to render newlines as HTML line breaks.
+If no attempted quizzes are found, displays a message to the user.
+Further Improvements and Considerations:
+
+More Granular Preparation Plan: You might want to process the Gemini API response further to structure the plan by topic. You could adjust the prompt to ask for a plan with sections for each topic.
+Error Handling: Implement more robust error handling for database queries and API calls.
+Loading State: Consider adding a loading indicator while fetching data and generating the preparation plan.
+Caching: For performance, you might want to cache the generated preparation plans for a certain period, especially if the set of attempted quizzes and topics doesn't change frequently.
+User Interface (UI): The provided HTML is very basic. You'll want to style it according to the sleek, minimalist design you envisioned. Consider using CSS frameworks like Tailwind CSS or Bootstrap.
+Topic Granularity: Ensure your topic field in the questions table is specific enough for meaningful preparation material.
+Gemini API Prompt Engineering: Experiment with different prompts to get the best possible preparation material from the Gemini API. You could include details like the user's past performance (if you have that data) to further personalize the plan.
+Cost Management: Be mindful of the costs associated with using the Gemini API, especially if you have a large number of premium users.
+Remember to adapt the database schema and queries to match your existing application structure. This provides a solid foundation for building your premium preparation plan page. Good luck!

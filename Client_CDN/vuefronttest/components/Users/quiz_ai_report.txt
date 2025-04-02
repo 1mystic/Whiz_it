@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnostic Quiz Report</title>
+    <style>
+        :root {
+            --primary: #243B55;
+            --secondary: #45A2A7;
+            --accent: #ADD8E6;
+            --success: #8FBC8F;
+            --warning: #FFD700;
+            --danger: #E74C3C;
+            --light-gray: #F0F0F0;
+            --medium-gray: #D3D3D3;
+            --dark-gray: #4A4A4A;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            color: var(--primary);
+            background-color: white;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            border-bottom: 1px solid var(--medium-gray);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .report-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+        
+        .report-meta {
+            display: flex;
+            justify-content: space-between;
+            color: var(--dark-gray);
+            font-size: 14px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: 500;
+            color: var(--secondary);
+            border-bottom: 1px solid var(--medium-gray);
+            padding-bottom: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .summary-card {
+            background-color: var(--light-gray);
+            border-radius: 4px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .summary-title {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+        
+        .assessment {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--success);
+            margin-bottom: 10px;
+        }
+        
+        .key-indicators {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .indicator {
+            border-left: 3px solid var(--secondary);
+            padding-left: 10px;
+        }
+        
+        .indicator-title {
+            font-weight: 500;
+            font-size: 14px;
+            color: var(--dark-gray);
+        }
+        
+        .indicator-value {
+            font-weight: 600;
+            font-size: 16px;
+            margin-top: 5px;
+        }
+        
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .analysis-card {
+            border: 1px solid var(--medium-gray);
+            border-radius: 4px;
+            padding: 15px;
+        }
+        
+        .card-title {
+            font-weight: 500;
+            margin-bottom: 15px;
+            color: var(--secondary);
+        }
+        
+        .progress-container {
+            margin-bottom: 15px;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background-color: var(--medium-gray);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background-color: var(--secondary);
+        }
+        
+        .insights {
+            background-color: var(--light-gray);
+            padding: 20px;
+            border-radius: 4px;
+        }
+        
+        .insight-category {
+            margin-bottom: 20px;
+        }
+        
+        .insight-title {
+            font-weight: 500;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+        
+        .insight-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+        .insight-list li {
+            margin-bottom: 8px;
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        .insight-list li:before {
+            content: "•";
+            color: var(--secondary);
+            position: absolute;
+            left: 0;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        .data-table th {
+            text-align: left;
+            padding: 10px;
+            background-color: var(--light-gray);
+            font-weight: 500;
+        }
+        
+        .data-table td {
+            padding: 10px;
+            border-bottom: 1px solid var(--medium-gray);
+        }
+        
+        .correct {
+            color: var(--success);
+        }
+        
+        .incorrect {
+            color: var(--danger);
+        }
+        
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .btn-primary {
+            background-color: var(--secondary);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background-color: white;
+            color: var(--secondary);
+            border: 1px solid var(--secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="report-title">Analytical Quiz - Diagnostic Report</h1>
+        <div class="report-meta">
+            <span>Completed: June 15, 2023 at 2:30 PM</span>
+            <span>User ID: UX45329</span>
+        </div>
+    </div>
+    
+    <div class="section">
+        <div class="summary-card">
+            <div class="summary-title">Key Diagnostic Findings</div>
+            <div class="assessment">Proficient</div>
+            <div>Based on consistent performance across core assessment areas</div>
+            
+            <div class="key-indicators">
+                <div class="indicator">
+                    <div class="indicator-title">Overall Proficiency</div>
+                    <div class="indicator-value">88%</div>
+                </div>
+                <div class="indicator">
+                    <div class="indicator-title">Areas of Strength</div>
+                    <div class="indicator-value">Conceptual Understanding</div>
+                </div>
+                <div class="indicator">
+                    <div class="indicator-title">Focus Area</div>
+                    <div class="indicator-value">Advanced Problem Solving</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2 class="section-title">Detailed Analysis</h2>
+        <div class="analysis-grid">
+            <div class="analysis-card">
+                <h3 class="card-title">Topic Performance</h3>
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span>Programming Fundamentals</span>
+                        <span>92%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 92%"></div>
+                    </div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span>Data Structures</span>
+                        <span>85%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 85%"></div>
+                    </div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span>Algorithms</span>
+                        <span>78%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 78%"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="analysis-card">
+                <h3 class="card-title">Question Type Analysis</h3>
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span>Multiple Choice</span>
+                        <span>94%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 94%"></div>
+                    </div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span>Code Analysis</span>
+                        <span>89%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 89%"></div>
+                    </div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span>Problem Solving</span>
+                        <span>81%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 81%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2 class="section-title">AI Insights and Recommendations</h2>
+        <div class="insights">
+            <div class="insight-category">
+                <h3 class="insight-title">Strengths</h3>
+                <ul class="insight-list">
+                    <li>Excellent understanding of core programming concepts</li>
+                    <li>Strong ability to analyze existing code</li>
+                    <li>Quick identification of syntax errors</li>
+                </ul>
+            </div>
+            
+            <div class="insight-category">
+                <h3 class="insight-title">Areas for Improvement</h3>
+                <ul class="insight-list">
+                    <li>Optimization techniques for complex algorithms</li>
+                    <li>Time complexity analysis in edge cases</li>
+                    <li>Recursive problem solving approaches</li>
+                </ul>
+            </div>
+            
+            <div class="insight-category">
+                <h3 class="insight-title">Recommendations</h3>
+                <ul class="insight-list">
+                    <li>Review advanced algorithm patterns</li>
+                    <li>Practice with recursive problem sets</li>
+                    <li>Focus on optimization challenges</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2 class="section-title">Question-Level Review</h2>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Question</th>
+                    <th>Your Answer</th>
+                    <th>Correct Answer</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Time complexity of binary search</td>
+                    <td>O(log n)</td>
+                    <td>O(log n)</td>
+                    <td class="correct">Correct</td>
+                </tr>
+                <tr>
+                    <td>Optimal solution for traveling salesman</td>
+                    <td>O(n^2)</td>
+                    <td>O(n^2 2^n)</td>
+                    <td class="incorrect">Incorrect</td>
+                </tr>
+                <tr>
+                    <td>Recursive Fibonacci complexity</td>
+                    <td>O(2^n)</td>
+                    <td>O(2^n)</td>
+                    <td class="correct">Correct</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="section">
+        <h2 class="section-title">Next Steps</h2>
+        <div class="actions">
+            <button class="btn btn-primary">View Preparation Plan</button>
+            <button class="btn btn-secondary">Attempt Practice Quiz</button>
+        </div>
+    </div>
+</body>
+</html>
+
+
+from flask import Flask, request, jsonify, session
+import sqlite3
+import google.generativeai as genai
+from dotenv import load_dotenv
+import os
+import json # For structuring the report data
+
+load_dotenv()
+
+app = Flask(__name__)
+app.secret_key = 'your_secret_key'
+
+# Configure Gemini API (as before)
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+if not GOOGLE_API_KEY:
+    raise ValueError("GOOGLE_API_KEY environment variable not set.")
+genai.configure(api_key=GOOGLE_API_KEY)
+model = genai.GenerativeModel('gemini-pro')
+
+DATABASE = 'your_database.db'
+
+# Database helper functions (get_db, query_db, execute_db) - as defined previously
+
+@app.route('/api/quiz/submit', methods=['POST'])
+def submit_quiz():
+    if not request.is_json:
+        return jsonify({"error": "Request must be JSON"}), 400
+
+    data = request.get_json()
+    user_id = session.get('user_id') # Assuming user is logged in
+    if not user_id:
+        return jsonify({"error": "User not authenticated"}), 401
+
+    quiz_id = data.get('quiz_id')
+    responses = data.get('responses') # A dictionary or list of user's answers
+    question_details = get_quiz_questions_with_answers(quiz_id) # Function to fetch question details
+
+    if not quiz_id or not responses or not question_details:
+        return jsonify({"error": "Missing quiz data"}), 400
+
+    # 1. Process User Responses and Evaluate (Optional: You might do basic scoring here)
+    evaluated_responses = evaluate_quiz(question_details, responses)
+
+    # 2. Construct Prompt for Gemini API
+    prompt = generate_gemini_prompt(question_details, evaluated_responses, user_id)
+
+    # 3. Generate AI-Powered Report
+    try:
+        response = model.generate_content(prompt)
+        ai_report_text = response.text
+        # 4. Structure the AI Report Data
+        report_data = structure_report_data(ai_report_text, question_details, evaluated_responses)
+        return jsonify(report_data)
+    except Exception as e:
+        print(f"Error generating AI report: {e}")
+        return jsonify({"error": "Failed to generate AI report"}), 500
+
+# Helper function to fetch quiz questions with correct answers and topics
+def get_quiz_questions_with_answers(quiz_id):
+    questions = query_db("""
+        SELECT id, text, topic, correct_answer
+        FROM questions
+        WHERE quiz_id = ?
+    """, (quiz_id,))
+    return {q['id']: q for q in questions}
+
+# Helper function to evaluate user's responses (basic scoring and correctness)
+def evaluate_quiz(question_details, responses):
+    evaluated = {}
+    for question_id, user_answer in responses.items():
+        question = question_details.get(int(question_id))
+        if question:
+            is_correct = str(user_answer).strip().lower() == str(question['correct_answer']).strip().lower()
+            evaluated[int(question_id)] = {
+                'user_answer': user_answer,
+                'correct_answer': question['correct_answer'],
+                'is_correct': is_correct,
+                'topic': question['topic']
+            }
+    return evaluated
+
+# Helper function to generate the prompt for Gemini API
+def generate_gemini_prompt(question_details, evaluated_responses, user_id):
+    prompt_parts = [
+        f"Analyze the following quiz responses for user ID: {user_id}.",
+        "Provide an analytical report that includes:",
+        "- Overall performance summary.",
+        "- Identification of strengths and weaknesses based on topics.",
+        "- Specific feedback on individual answers, highlighting areas of misunderstanding.",
+        "- Recommendations for further learning and improvement, focusing on specific topics or concepts.",
+        "Format the report in a way that is easy to understand and actionable for the user.",
+        "\n--- Quiz Questions and Responses ---"
+    ]
+    for q_id, details in question_details.items():
+        response = evaluated_responses.get(q_id)
+        user_answer_str = response['user_answer'] if response else "Not answered"
+        correct_answer_str = details['correct_answer']
+        is_correct_str = "Correct" if response and response['is_correct'] else "Incorrect"
+        prompt_parts.append(f"\nQuestion ID: {q_id}")
+        prompt_parts.append(f"Question: {details['text']}")
+        prompt_parts.append(f"Your Answer: {user_answer_str}")
+        prompt_parts.append(f"Correct Answer: {correct_answer_str}")
+        prompt_parts.append(f"Status: {is_correct_str}")
+        if response and not response['is_correct']:
+            prompt_parts.append(f"Topic: {details['topic']}")
+
+    return "\n".join(prompt_parts)
+
+# Helper function to structure the AI report data in a standard format
+def structure_report_data(ai_report_text, question_details, evaluated_responses):
+    report = {
+        "overall_summary": "",
+        "strengths": [],
+        "weaknesses": [],
+        "topic_performance": {},
+        "question_analysis": {},
+        "recommendations": []
+    }
+
+    # Basic parsing of the AI report text (you might need more sophisticated parsing)
+    lines = ai_report_text.split('\n')
+    current_section = None
+    for line in lines:
+        line = line.strip()
+        if line.lower().startswith("overall performance summary"):
+            current_section = "overall_summary"
+        elif line.lower().startswith("strengths"):
+            current_section = "strengths"
+        elif line.lower().startswith("weaknesses"):
+            current_section = "weaknesses"
+        elif line.lower().startswith("recommendations"):
+            current_section = "recommendations"
+        elif line.lower().startswith("question id"):
+            current_section = "question_analysis"
+            try:
+                q_id = int(line.split(":")[1].strip())
+                report["question_analysis"][q_id] = {}
+            except ValueError:
+                pass
+        elif current_section == "overall_summary" and line:
+            report["overall_summary"] += line + " "
+        elif current_section == "strengths" and line:
+            report["strengths"].append(line)
+        elif current_section == "weaknesses" and line:
+            report["weaknesses"].append(line)
+        elif current_section == "recommendations" and line:
+            report["recommendations"].append(line)
+        elif current_section == "question_analysis" and line and q_id in report["question_analysis"]:
+            if ":" in line:
+                key, value = line.split(":", 1)
+                report["question_analysis"][q_id][key.strip()] = value.strip()
+
+    # Aggregate topic performance
+    topic_scores = {}
+    for q_id, evaluation in evaluated_responses.items():
+        topic = evaluation['topic']
+        if topic not in topic_scores:
+            topic_scores[topic] = {'correct': 0, 'total': 0}
+        topic_scores[topic]['total'] += 1
+        if evaluation['is_correct']:
+            topic_scores[topic]['correct'] += 1
+
+    for topic, scores in topic_scores.items():
+        accuracy = (scores['correct'] / scores['total']) * 100 if scores['total'] > 0 else 0
+        report["topic_performance"][topic] = {"accuracy": f"{accuracy:.2f}%"}
+
+    # Add user's answers and correctness to the report
+    for q_id, evaluation in evaluated_responses.items():
+        if q_id in report["question_analysis"]:
+            report["question_analysis"][q_id]['user_answer'] = evaluation['user_answer']
+            report["question_analysis"][q_id]['is_correct'] = evaluation['is_correct']
+
+    return report
+
+if __name__ == '__main__':
+    from flask import g
+    app.run(debug=True)
+2. Frontend Logic (Conceptual):
+
+When the user clicks the "Submit" button on the quiz page:
+Collect the quiz_id and the user's responses (e.g., as a JavaScript object or dictionary).
+Send a POST request to the /api/quiz/submit endpoint with the quiz_id and responses in the request body (as JSON).
+On receiving the JSON response from the backend, parse the report_data and use it to dynamically render the UI for the analytical report page.
+3. Standardized Report Structure (JSON Example):
+
+The structure_report_data function in the Flask backend aims to create a standardized JSON structure. Here's an example of what the report_data might look like:
+
+JSON
+
+{
+  "overall_summary": "Based on your performance in this quiz, you have demonstrated a good understanding of the core concepts. However, there are some areas where further review might be beneficial.",
+  "strengths": [
+    "You showed a strong grasp of Topic A.",
+    "Your answers in the practical application questions were generally accurate."
+  ],
+  "weaknesses": [
+    "You struggled with some of the more complex questions in Topic C.",
+    "There were a few instances where you seemed to confuse key definitions in Topic B."
+  ],
+  "topic_performance": {
+    "Topic A": {
+      "accuracy": "90.00%"
+    },
+    "Topic B": {
+      "accuracy": "65.00%"
+    },
+    "Topic C": {
+      "accuracy": "40.00%"
+    }
+  },
+  "question_analysis": {
+    "1": {
+      "user_answer": "Answer A",
+      "is_correct": true,
+      "Topic": "Topic A"
+    },
+    "2": {
+      "user_answer": "Answer C",
+      "is_correct": false,
+      "Topic": "Topic B",
+      "Correct Answer": "Answer B",
+      "Explanation": "..."
+    },
+    // ... more questions
+  },
+  "recommendations": [
+    "We recommend revisiting the materials on advanced concepts in Topic C.",
+    "Consider practicing more questions related to the definitions in Topic B.",
+    "Your understanding of Topic A is excellent, perhaps explore more advanced topics within it."
+  ]
+}
+Key Points and Considerations:
+
+Prompt Engineering: The quality of the AI report heavily depends on how well you craft the prompt for the Gemini API. Experiment with different instructions and the level of detail you provide.
+Data Parsing: The structure_report_data function performs basic parsing of the text response from Gemini. For more complex reports, you might need more sophisticated techniques (e.g., using regular expressions or asking Gemini to format the output in a specific way like JSON, though that can be less reliable).
+Error Handling: Implement proper error handling for API requests and database interactions.
+Security: Ensure proper authentication and authorization for your API endpoint.
+Scalability: For a large number of users, consider asynchronous task processing (e.g., using Celery) for generating the AI reports to avoid blocking the main Flask thread.
+Database Design: Make sure your database schema includes all the necessary information (questions, correct answers, topics, quiz IDs) to generate the report effectively.
+Frontend Implementation: Your frontend will need to be designed to handle this structured JSON data and render the analytical report UI you previously designed.
+This comprehensive approach should guide you in building the automated AI-powered quiz report functionality in your Flask backend. Remember to adapt the code and logic to your specific application's needs.

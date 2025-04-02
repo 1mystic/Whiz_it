@@ -55,12 +55,6 @@ const router = VueRouter.createRouter({
             },
         ]
     },
-    
-    { 
-        path: '/about', 
-        component: About,
-        name: 'about'
-    },
     { 
         path: '/quiz/:quizid(\\d+)', 
         component: QuizView,
