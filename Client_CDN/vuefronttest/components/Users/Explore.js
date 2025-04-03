@@ -6,10 +6,31 @@ const Explore = {
   template: `
     
             <!-- Search button -->
-            <div class="search-button">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                <span>Use Autodesigner 2.0</span>
-            </div>
+            <!-- Search and Filters -->
+                <div class="filter_bar">
+                    <div class="search_bar">
+                        <i class="fas fa-search"></i>
+                        <input 
+                            type="text" 
+                            v-model="searchQuery" 
+                            placeholder="Search quizzes..."
+                            class="form-control"
+                        >
+                    </div>
+               
+                
+                    <div class="filter_opt">                      
+                        <div class="form-check form-switch" 
+                            style="margin-top: 0.8rem;">
+                        <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault"
+                            v-model="hideExpired" @change="filterQuizzes">
+                        <label class="form-check-label" 
+                        style="font-size: 1.2rem;
+                                margin-top: 0.2rem;"
+                        for="flexSwitchCheckDefault">Exclude Expired</label>
+                        </div>
+                    </div>
+                </div>
             
              <!-- Featured Quizzes -->
               <h2 class="section-title">Featured Quizzes</h2>
@@ -36,22 +57,16 @@ const Explore = {
                         <div class="bookmark-icon">
                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
                         </div>
-                        <div>{{ getSubjectName(getChapter(quiz.chapter_id)?.subject_id) }}</div>
+                        <div class="quiz-card-img-title">{{quiz.title}}</div>
                       </div>       
                                      
-                      <h3 class="quiz-title">{{ quiz.title }}</h3>
-                      <p class="quiz-subtitle">{{ getChapterName(quiz.chapter_id) }}</p>
+                      <div class="quiz-title">{{ getSubjectName(getChapter(quiz.chapter_id)?.subject_id) }}   {{ getChapterName(quiz.chapter_id) }}  </div>
+                    
+                      <i class="bi bi-clock"></i>
+                            <span class="quiz-subtitle">{{ formatDuration(quiz.time_duration) }}</span>
+                            <span class="quiz-subtitle">  {{ quiz.question_count }} Questions</span>
                       <div class="quiz-info">
-                        <div class="quiz-meta">
-                          <div class="quiz-meta-item">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                            <span>{{ formatDuration(quiz.time_duration) }}</span>
-                          </div>
-                          <div class="quiz-meta-item">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                            <span>{{ quiz.question_count }}</span>
-                          </div>
-                        </div>
+                        
                        <button @click="startQuiz(quiz.id)" 
                         class="quiz-action"
                         :disabled="isPastQuiz(quiz.date_of_quiz)">
@@ -70,31 +85,31 @@ const Explore = {
 
             
             <!-- Quiz Categories -->
-            <h2 class="section-title">Quiz Categories</h2>
+            <h2 class="section-title"></h2> <!-- Quiz Categories -->
             <div class="categories-grid">
                 <div 
                   v-for="subject in subjects" 
                   :key="subject.id" 
-                  class="category-card"
+                  class="category-card subject-card"
                   @click="selectSubject(subject)"
                   :class="{ 'selected': selectedSubject === subject.id }"
                 >
                  
                       <div class="category-icon">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5M9 14c-.2-1-.7-1.7-1.5-2.5M15 14a5 5 0 0 1-6 0"/><path d="M22 6c0 10-7 16.5-10 16.5S2 16 2 6m20 0c0-1.7-1.3-3-4-3-2 0-4 1-5 2-1-1-3-2-5-2-2.7 0-4 1.3-4 3h18Z"/></svg>
+                      <i class="bi bi-journal-minus"  style="font-size:1.5rem; font-weight:700;"></i>
                       </div>
                       <span>{{subject.name}}</span>
                 </div>
                 <div 
                   v-for="chapter in chapters" 
                   :key="chapter.id" 
-                  class="category-card"
+                  class="category-card chapter-card"
                   @click="selectChapter(chapter)"
                   :class="{ 'selected': selectedChapter === chapter.id }"
                 >
                  
-                      <div class="category-icon">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5M9 14c-.2-1-.7-1.7-1.5-2.5M15 14a5 5 0 0 1-6 0"/><path d="M22 6c0 10-7 16.5-10 16.5S2 16 2 6m20 0c0-1.7-1.3-3-4-3-2 0-4 1-5 2-1-1-3-2-5-2-2.7 0-4 1.3-4 3h18Z"/></svg>
+                      <div class="category-icon">\
+                      <i class="bi bi-book-half" style="font-size:1.2rem;"></i>
                       </div>
                       <span>{{chapter.name}}</span>
                 </div>
@@ -102,12 +117,12 @@ const Explore = {
             </div>
             
             <!-- My Quiz Journey -->
-            <h2 class="section-title">My Quiz Journey</h2>
+            <h2 class="section-title"></h2>
             <div class="journey-container">
 
                 <div v-for="score in userScores" :key="score.id"  class="journey-card">
                     <div class="journey-image">
-                        <div>{{ score.id }}</div>
+                        <div class="score_card_id">{{ score.id }}</div>
                     </div>
                     <div class="journey-content">
                         <h3 class="journey-title">{{ score.quiz_title }}</h3>
@@ -144,6 +159,7 @@ const Explore = {
       userName: 'Student',
       userEmail: '',         
       availableQuizzes: [],
+     
      
 
 
@@ -308,10 +324,7 @@ async created() {
        if (old_quiz) {
            alert("You have already attempted this quiz.");
            return;
-       }
-
-      this.attemptedQuizzes.push(quizId);
-        
+       }        
       window.open(this.$router.resolve({ path: `/quiz/${quizId}` }).href, '_blank');
   },
       filterQuizzes() {
@@ -503,18 +516,48 @@ async created() {
 
 const explore_styles= `
 
-.selected {
-  background-color:rgba(191, 255, 132, 0.62);
-  border: 2px solid #333;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transform: scale(1.05);
+
+.filter_bar {
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+    padding: 2rem 2rem 0 2rem;
+    /*background:rgb(250, 239, 227);*/
+    border-radius: 2rem;
+
+}
+   
+.search_bar, .filter_opt {
+    display: flex;   
+    justify-content: flex-start;
+    gap: 0.9rem;
+}
+    input, select {
+    background-color: rgba(255, 255, 255, 0.8);
+}
+.search_bar input {
+margin-bottom: 0.5rem;
+
+}
+
+.search_bar i, .filter_opt i {
+    position: relative;
+    top: 2.8rem;
+    transform: translateY(-50%);
+    color:rgb(219, 121, 145);
+    z-index: 1; 
+}
+.search_bar i{
+top: 2.7rem;
 }
 
 .section-title {
-  font-size: 1.75rem;
+  font-size: 2.95rem;
   font-weight: 600;
-  margin-bottom: 1.5rem;
-  margin-top: 2rem;
+  margin-bottom: 2rem;
+  margin-top: 4rem;
+  margin-left: 2rem;
+  color: rgba(110, 79, 50, 0.73);
 }
 
 /* Slider styles */
@@ -579,10 +622,10 @@ const explore_styles= `
 .quiz-card {
   min-width: 280px;
   max-width: 280px;
-  border: 1px solid #e5e5e5;
+  border: 5px solid rgba(148, 216, 121, 0.23);
   border-radius: 8px;
   padding: 1rem;
-  background-color: white;
+  background-color: rgba(235, 255, 212, 0.34);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -595,7 +638,7 @@ const explore_styles= `
 .quiz-card-image {
   width: 100%;
   height: 150px;
-  background-color: #f0f0f0;
+  background-color: rgb(255, 162, 146);
   border-radius: 4px;
   margin-bottom: 1rem;
   position: relative;
@@ -613,6 +656,10 @@ const explore_styles= `
   padding: 4px;
   cursor: pointer;
 }
+  .quiz-card-img-title{
+  font-size: 3.2rem;
+  font-weight: 700;
+  color : rgba(0, 0, 0, 0.182);}
 
 .quiz-creator {
   display: flex;
@@ -620,11 +667,20 @@ const explore_styles= `
   margin-bottom: 0.5rem;
 }
 
-.quiz-title {
-  font-weight: 500;
-  margin-bottom: 0.25rem;
-}
 
+.quiz-title {
+  font-weight: 650;
+  font-size: 1.425rem;
+  margin-bottom: 0.55rem;
+  margin-left: 0.5rem;
+  color : rgba(64, 88, 44, 0.8);
+}
+  .quiz-subtitle {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #666;
+  margin-left: 0.8rem;
+}
 .quiz-info {
   display: flex;
   align-items: center;
@@ -639,14 +695,17 @@ const explore_styles= `
   font-size: 0.875rem;
 }
 
+
 .quiz-meta-item {
   display: flex;
   align-items: center;
   margin-right: 1rem;
+  font-size: 1rem;
 }
 
 .quiz-meta-item svg {
   margin-right: 0.25rem;
+  font-size: 1rem;
 }
 
 .quiz-action {
@@ -657,10 +716,11 @@ const explore_styles= `
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  width: 100%;
 }
 
 .quiz-action:hover {
-  background-color: #e0e0e0;
+  background-color:rgba(132, 240, 155, 0.82);
 }
 
 /* Category cards */
@@ -672,7 +732,7 @@ const explore_styles= `
 }
 
 .category-card {
-  border: 1px solid #e5e5e5;
+  border: 3px solid rgba(139, 229, 252, 0.14);
   border-radius: 8px;
   padding: 1rem;
   display: flex;
@@ -683,6 +743,25 @@ const explore_styles= `
   cursor: pointer;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
+  .subject-card {
+  background-color: rgba(255, 235, 168, 0.26);
+}
+
+
+
+.chapter-card {
+  background-color: rgba(114, 226, 226, 0.22);
+}
+
+.selected {
+  background-color: rgba(132, 240, 155, 0.82); /*rgba(191, 255, 132, 0.62);*/
+  border: 2px solid #333;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: scale(1.05);
+}
+
+
+
 
 .category-card:hover {
   transform: translateY(-4px);
@@ -698,6 +777,12 @@ const explore_styles= `
   justify-content: center;
 }
 
+.score_card_id {
+  font-size: 3.5rem;
+  font-weight: 700;
+  color : rgba(0, 0, 0, 0.182);
+  
+}
 /* Journey cards */
 .journey-container {
   display: grid;
@@ -710,15 +795,17 @@ const explore_styles= `
   border-radius: 8px;
   overflow: hidden;
   display: flex;
+  background-color: rgba(255, 255, 255, 0.8);
 }
 
 .journey-image {
   width: 120px;
   min-width: 120px;
-  background-color: #f0f0f0;
+  background-color:rgb(220, 255, 181);
   display: flex;
   align-items: center;
   justify-content: center;
+ 
 }
 
 .journey-content {
@@ -733,7 +820,7 @@ const explore_styles= `
 
 .journey-subtitle {
   color: #666;
-  font-size: 0.875rem;
+  font-size: 1.875rem;
   margin-bottom: 1rem;
 }
 
@@ -760,11 +847,12 @@ const explore_styles= `
 .search-button {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: felx-start;
   padding: 0.75rem 1.5rem;
-  background-color: #f0f0f0;
+ 
   border-radius: 4px;
-  margin: 2rem auto;
+  margin: 2rem 1rem;
+  max-width: 300px;
   cursor: pointer;
 }
 

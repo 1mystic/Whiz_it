@@ -182,12 +182,13 @@ const profileStylesheet = `
         }
 
         .profile-container {
-            background: rgba(253,130,130,255); /* Light red */
-            border-radius: 24px; /* Rounded corners */
-            padding: 1.5rem; /* Responsive padding */
-            color: #333; /* Dark text for contrast */
+            background-color: rgba(253,130,130,0.8);
+            border-radius: 24px;
+            padding: 1.5rem; 
+            color: #333; 
             box-shadow: var(--glow-effect);
-            margin-bottom: 2rem; /* Space below profile */
+            margin-bottom: 2rem; 
+            border: 6px solid rgba(0,0,0,0.1); 
         }
 
         .profile-card {

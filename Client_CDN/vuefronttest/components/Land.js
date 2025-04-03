@@ -234,7 +234,7 @@ addStyles(`
 
 .btn-start {
     background-color: rgba(245, 108, 77, 0.97);
-    border: none;
+    border: 6px solid rgba(59, 37, 31, 0.17);
     border-radius: 5rem;
     font-weight: 800;
     transition: background-color 0.3s ease;
@@ -246,13 +246,13 @@ addStyles(`
 
 .btn-start:hover {
     background-color: rgba(241, 104, 73, 0.94);
-    border: 5px solid rgb(36, 32, 32);
+    border: 7px solid rgba(36, 32, 32,0.5);
     font-weight: 800;
 }
 
 .btn-log {
     background-color: rgba(106, 206, 204, 0.97);
-    border: none;
+    border: 6px solid rgba(45, 87, 86, 0.17);
     border-radius: 5rem;
     font-weight: 770;
     transition: background-color 0.3s ease;
@@ -264,7 +264,7 @@ addStyles(`
 
 .btn-log:hover {
     background-color: rgba(113, 224, 187, 0.82);
-    border: 5px solid rgb(36, 32, 32);
+    border: 7px solid rgba(36, 32, 32,0.5);
     font-weight: 800;
 }
 

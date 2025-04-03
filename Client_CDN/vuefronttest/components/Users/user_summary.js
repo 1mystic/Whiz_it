@@ -28,7 +28,7 @@ const usummary = {
                     <div class="u_stat_card">                        
                         <div class="u_stat_content">
                             <h3>{{ active_quizzes }}</h3>
-                            <p>Active Quizzes</p>
+                            <p>Total Quizzes</p>
                         </div>
                     </div>
                 </div>
@@ -140,7 +140,7 @@ const usummary = {
                 return this.scores.length;
             },
             active_quizzes() {
-                return this.quizzes.filter(quiz => quiz.active).length;
+                return this.quizzes.length;
             }
             ,
             recentScores() {
@@ -559,6 +559,7 @@ const sumstyle = `
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
   margin-bottom: 1rem;
+  border: 5px solid rgba(0, 0, 0, 0.05);
 }
 
 .u_stat_card:hover {
@@ -589,19 +590,19 @@ const sumstyle = `
 }
 
 .u_stat_card:nth-child(1) {
-  background: rgba(255, 105, 105, 0.82);
+  background: rgba(255, 105, 105, 0.22);
 }
 
 .u_stat_card:nth-child(2) {
-  background: rgba(93, 245, 93, 0.87);
+  background: rgba(93, 245, 93, 0.27);
 }
 
 .u_stat_card:nth-child(3) {
-  background: rgba(255, 255, 105, 0.77);
+  background: rgba(255, 255, 105, 0.27);
 }
 
 .u_stat_card:nth-child(4) {
-  background: rgba(88, 235, 235, 0.78);
+  background: rgba(88, 235, 235, 0.28);
 }
 
 /* Small devices (landscape phones) */
