@@ -115,7 +115,8 @@ body {
   position: fixed;
   top: 0;
   left: 0;
-  background-color: #f7f7f7;
+  background-color: rgba(237, 255, 187, 0.34);
+  /*background-color: #f7f7f7;*/
   border-right: 1px solid #e5e5e5;
   display: flex;
   flex-direction: column;

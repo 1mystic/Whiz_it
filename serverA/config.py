@@ -5,7 +5,7 @@ load_dotenv()
 
 class Config:
     # Database
-    SQLALCHEMY_DATABASE_URI = os.getenv('SQLALCHEMY_DATABASE_URI', 'sqlite:///quizmdb.db')
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///quizmdb.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # JWT
@@ -14,13 +14,13 @@ class Config:
     JWT_ACCESS_TOKEN_EXPIRES = False  # minutes
 
     # Redis and Celery
-    REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
-    CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', 'redis://localhost:6379/0')
-    CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', 'redis://localhost:6379/0')
+    REDIS_URL = 'redis://localhost:6379/0'
+    CELERY_BROKER_URL ='redis://localhost:6379/0'
+    CELERY_RESULT_BACKEND ='redis://localhost:6379/0'
 
     # Caching
-    CACHE_TYPE = os.getenv('CACHE_TYPE', 'redis')
-    CACHE_REDIS_URL = os.getenv('CACHE_REDIS_URL', 'redis://localhost:6379/0')
+    CACHE_TYPE = 'redis'
+    CACHE_REDIS_URL = 'redis://localhost:6379/0'
     CACHE_DEFAULT_TIMEOUT = int(os.getenv('CACHE_DEFAULT_TIMEOUT', 300))  # 5 minutes default cache timeout
 
     # Mail
