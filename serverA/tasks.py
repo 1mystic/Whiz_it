@@ -9,8 +9,8 @@ from models import User, Quiz, Score
 from celery.schedules import crontab
 import csv
 from io import StringIO
-#from xhtml2pdf import pisa
-from io import BytesIO
+import os
+
 
 def make_celery():
     app = create_app()
@@ -43,19 +43,17 @@ celery = make_celery()
 
 
 @celery.task(name='tasks.send_email', bind=True, max_retries=3,ignore_result=True)
-def send_email(self, subject, recipient, body, attachments=None, as_pdf=False):
+def send_email(self, subject, recipient, body, attachments=None):
     """Send email using SMTP with retries"""
     try:
         with mail.get_connection(
             host= 'smtp.gmail.com',
             port= 587,
             username= 'mail.whiz.it@gmail.com',
-            password= 'ergptxeyzovqclsh',
+            password= os.environ.get('MAIL_PASSWORD'),
             use_tls=    True,
             timeout=    50,
         ) as connection:
-            
-            
             msg = EmailMessage(
                 subject=subject,                
                 from_email='mail.whiz.it@gmail.com',
@@ -64,33 +62,7 @@ def send_email(self, subject, recipient, body, attachments=None, as_pdf=False):
                 body=body
             )
             #if '<' in body and '>' in body:
-            
-            # Process HTML content
-            if as_pdf:
-                # Convert HTML to PDF
-                pdf_buffer = BytesIO()
-                pisa_status = pisa.CreatePDF(
-                    body,               # HTML content
-                    dest=pdf_buffer     # Output buffer
-                )
-                
-                if pisa_status.err:
-                    # Fallback to HTML email if PDF generation fails
-                    msg.body = body
-                    msg.content_subtype = "html"
-                else:
-                    # Set plain text content
-                    msg.body = "Please see the attached PDF report."
-                    # Attach PDF
-                    pdf_buffer.seek(0)
-                    msg.attach(
-                        f"{subject.replace(' ', '_')}.pdf",
-                        pdf_buffer.read(),
-                        'application/pdf'
-                    )
-            else:
-                msg.body = body
-                msg.content_subtype = "html"
+            msg.content_subtype = "html"
             
             
             if attachments:
@@ -292,8 +264,7 @@ def generate_quiz_csv(user_id):
             subject="Your Quiz History Export",
             recipient=user.email,
             body="<p>Please find attached your quiz history export.</p>",
-            attachments=[('quiz_history.csv', csv_content, 'text/csv')],
-            as_pdf=True
+            attachments=[('quiz_history.csv', csv_content, 'text/csv')]
         )
         
         return "CSV generated and sent successfully"
@@ -365,10 +336,10 @@ celery.conf.beat_schedule = {
 @celery.on_after_configure.connect
 def setup_periodic_tasks(sender, **kwargs):
     sender.add_periodic_task(
-        crontab(hour=10, minute=55),send_daily_reminders.s(), name='send_daily_reminders'
+        crontab(hour=18, minute=12),send_daily_reminders.s(), name='send_daily_reminders'
     )
     sender.add_periodic_task(
-        crontab(55, 10, day_of_month='18'),send_monthly_report.s(), name='send_monthly_report'
+        crontab(20, 12, day_of_month='8'),send_monthly_report.s(), name='send_monthly_report'
     )
     #(min/h/doM/MoY/d) Crontab format
 

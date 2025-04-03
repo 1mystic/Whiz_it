@@ -1173,6 +1173,7 @@ def init_routes(app):
     @app.route('/api/user/performance-data', methods=['GET'])
     @jwt_required()
     @jwt_valid_token
+    @cache.cached(timeout=60)
     def get_user_performance_data():
         user_id = get_jwt_identity()
         user = User.query.get(user_id)
@@ -1274,6 +1275,7 @@ def init_routes(app):
     @app.route('/api/user/ai-insights', methods=['POST'])
     @jwt_required()
     @jwt_valid_token
+    @cache.cached(timeout=360)
     def get_user_ai_insights():
         data = request.get_json()
         performance_data = data.get('performance_data')

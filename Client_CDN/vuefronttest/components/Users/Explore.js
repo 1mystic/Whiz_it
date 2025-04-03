@@ -640,7 +640,7 @@ top: 2.7rem;
 }
 
 .journey-card {
-  border: 1px solid #e5e5e5;
+  border: 5px solid #e5e5e5;
   border-radius: 8px;
   overflow: hidden;
   display: flex;
