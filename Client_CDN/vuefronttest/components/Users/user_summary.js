@@ -9,7 +9,7 @@ const usummary = {
                 <div class="u_stats">
                     <div class="u_stat_card">                       
                         <div class="u_stat_content">
-                            <h3>{{ averageScore }}%</h3>
+                            <h3>{{ averageScore.toFixed(1) }}%</h3>
                             <p>Average Score</p>
                         </div>
                     </div>

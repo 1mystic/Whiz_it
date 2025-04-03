@@ -1,5 +1,5 @@
 from flask import request, g, jsonify, send_from_directory, render_template, send_file
-
+import json
 from datetime import timedelta
 from dateutil import parser
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required,get_jwt_identity
@@ -15,6 +15,107 @@ from io import BytesIO
 #from flask_caching import Cache
 
 #cache = Cache()
+
+
+
+import os
+from dotenv import load_dotenv
+import google.generativeai as genai
+
+load_dotenv() # Load environment variables from .env
+
+# Configure the Generative AI client
+gemini_api_key = os.getenv("GOOGLE_API_KEY")
+if not gemini_api_key:
+    print("Warning: GOOGLE_API_KEY environment variable not set. AI features will be disabled.")
+    # Handle this case appropriately - maybe disable the report generation
+else:
+    genai.configure(api_key=gemini_api_key)
+    model = genai.GenerativeModel('gemini-2.0-flash') 
+
+
+
+# --- AI Report Generation Function (keep as before) ---
+def generate_ai_report(quiz_title, questions_data, score_percentage):
+    """Generates an AI report using Google Gemini."""
+    if not model:  # Check if model is initialized
+        print("AI Report generation skipped: Model not available.")
+        return json.dumps({
+            "summary": "AI analysis is currently unavailable.",
+            "strengths": [],
+            "weaknesses": [],
+            "suggestions": ["Please review your answers manually."]
+        })
+
+    prompt = f"""
+    Analyze the following quiz results and provide an insightful report in JSON format.
+    The user attempted a quiz titled "{quiz_title}" and scored {score_percentage:.2f}%.
+
+    Here's a breakdown of the questions, the user's selected options, and the correct options:
+    """
+    for item in questions_data:
+        prompt += f"\n- Question: {item['question']}\n"
+        prompt += f"  User's Answer: {item['selected_option']}\n"
+        prompt += f"  Correct Answer: {item['correct_option']}\n"
+        prompt += f"  Outcome: {'Correct' if item['selected_option'] == item['correct_option'] else 'Incorrect'}\n"
+
+    prompt += """
+    Based on this information, provide a JSON object with the following keys:
+    - "summary": A brief overall summary of the user's performance (2-3 sentences).
+    - "strengths": A list of topics or types of questions the user seems to understand well (based on correct answers). If none are obvious, provide an encouraging remark.
+    - "weaknesses": A list of topics or types of questions where the user struggled (based on incorrect answers). Be constructive.
+    - "suggestions": A list of actionable suggestions for improvement, possibly mentioning specific areas from the 'weaknesses'.
+
+    Return ONLY the raw JSON with no markdown formatting, code blocks, or other text. Ensure the output is valid JSON.
+    Also the response should have a conversational tone as if you are directly guiding the user from a mentor's perspective.
+    """
+
+    try:
+        response = model.generate_content(prompt)
+        response_text = response.text.strip()
+        
+        # Remove markdown code block if present
+        if response_text.startswith("```") and "```" in response_text[3:]:
+            # Find the first code block
+            start_pos = response_text.find("\n") + 1
+            end_pos = response_text.rfind("```")
+            # Extract just the JSON content
+            json_text = response_text[start_pos:end_pos].strip()
+        else:
+            json_text = response_text
+            
+        # Attempt to parse the response to validate JSON
+        parsed_report = json.loads(json_text)
+        
+        # Ensure the expected keys exist, even if empty lists/strings
+        parsed_report.setdefault("summary", "AI analysis generated, but summary missing.")
+        parsed_report.setdefault("strengths", [])
+        parsed_report.setdefault("weaknesses", [])
+        parsed_report.setdefault("suggestions", [])
+        
+        return json.dumps(parsed_report)  # Return the validated/parsed JSON string
+
+    except json.JSONDecodeError as e:
+        print(f"AI Warning: Response was not valid JSON: {response_text}")
+        print(f"JSON parsing error: {e}")
+        fallback_report = json.dumps({
+            "summary": "AI analysis could not be parsed correctly.",
+            "strengths": [],
+            "weaknesses": [],
+            "suggestions": ["Please review your answers manually."]
+        })
+        return fallback_report
+    except Exception as e:
+        print(f"Error generating AI report: {e}")
+        error_report = json.dumps({
+            "summary": f"An error occurred during AI analysis.",
+            "strengths": [],
+            "weaknesses": [],
+            "suggestions": ["Please review your answers manually."]
+        })
+        return error_report
+
+
 
 from factory import cache
 
@@ -689,6 +790,91 @@ def init_routes(app):
             
             return delete_question()
         
+    # score history ai gen ai
+    @app.route('/api/scores/<int:score_id>/full_report', methods=['GET'])
+    @jwt_required()
+    # @jwt_valid_token # Apply necessary auth
+    def get_full_quiz_report(score_id):
+        # --- Fetch the Score Record ---
+        score = Score.query.filter_by(id=score_id).first()
+        if not score:
+            return jsonify({'message': 'Score record not found'}), 404
+
+        # --- Authorization Check (Optional but Recommended) ---
+        # current_user_id = get_jwt_identity()
+        # if score.user_id != current_user_id:
+        #     return jsonify({'message': 'Forbidden: You do not own this score record'}), 403
+
+        # --- Fetch Associated Data ---
+        quiz = Quiz.query.get(score.quiz_id)
+        questions = Question.query.filter_by(quiz_id=score.quiz_id).order_by(Question.id).all() # Ensure consistent order
+        user = User.query.get(score.user_id)
+
+        if not quiz or not questions:
+             return jsonify({'message': 'Associated quiz or question data not found'}), 404
+
+        # --- Reconstruct Question History ---
+        quiz_history = []
+        try:
+            # Use eval carefully or ideally store responses as JSON string in DB
+            responses = eval(score.responses)
+            if not isinstance(responses, list) or len(responses) != len(questions):
+                 print(f"Warning: Response list length mismatch for score {score_id}")
+                 # Handle mismatch - maybe pad with null or return error
+                 # For simplicity here, we'll proceed but it might lead to index errors
+                 # A more robust solution is needed if this happens often.
+                 # Pad responses if shorter:
+                 if len(responses) < len(questions):
+                     responses.extend([None] * (len(questions) - len(responses)))
+
+
+        except Exception as e:
+            print(f"Error parsing responses for score {score_id}: {e}")
+            # Return an error or default history
+            return jsonify({'message': 'Error processing score responses data'}), 500
+
+        for i, question in enumerate(questions):
+             selected_option = responses[i] if i < len(responses) else "Error: Missing Response" # Safety check
+             quiz_history.append({
+                 'question': question.question_statement,
+                 'selected_option': selected_option,
+                 'correct_option': question.correct_option
+             })
+
+        # --- Parse the AI Report JSON ---
+        ai_report_data = None
+        if score.ai_report:
+            try:
+                ai_report_data = json.loads(score.ai_report)
+            except json.JSONDecodeError:
+                print(f"Error decoding AI report JSON for score {score_id}")
+                # Provide a default/error structure if parsing fails
+                ai_report_data = {
+                    "summary": "Error retrieving AI analysis.",
+                    "strengths": [], "weaknesses": [], "suggestions": []
+                }
+        else:
+            # Provide a default structure if no report was stored
+            ai_report_data = {
+                "summary": "AI analysis was not generated or is unavailable.",
+                "strengths": [], "weaknesses": [], "suggestions": []
+            }
+
+
+        # --- Construct the Final Response ---
+        full_report = {
+            'score_id': score.id,
+            'quiz_title': quiz.title,
+            'user': user.full_name if user else 'Unknown User',
+            'score': score.total_score,
+            'timestamp': score.timestamp_of_attempt.isoformat() if score.timestamp_of_attempt else None,
+            'questions': quiz_history, # The detailed question breakdown
+            'ai_report': ai_report_data # The parsed AI report object
+        }
+
+        return jsonify(full_report), 200
+
+   
 
     @app.route('/api/quizzes/<int:score_id>/user/<string:user>/history', methods=['GET'])
     @jwt_required()
@@ -725,40 +911,68 @@ def init_routes(app):
         
     @app.route('/api/quizzes/<int:quiz_id>/submit', methods=['POST'])
     @jwt_required()
-    @jwt_valid_token
+    # @jwt_valid_token # Assuming this decorator works as intended
     def submit_quiz(quiz_id):
+        # --- Get Quiz and Request Data ---
         quiz = Quiz.query.get_or_404(quiz_id)
         data = request.get_json()
-        answers = data['answers']
-        
-        all_questions = Question.query.filter_by(quiz_id=quiz_id).all()
+        answers = data.get('answers', {})
+
+        # --- Get Questions and Calculate Score ---
+        all_questions = Question.query.filter_by(quiz_id=quiz_id).order_by(Question.id).all() # Ensure consistent order
         total_questions = len(all_questions)
-        
         if total_questions == 0:
             return jsonify({'message': 'Quiz has no questions'}), 400
-        
-        # ned to conv string keys to integers for comparison
-        answers = {int(k): v for k, v in answers.items()}
-        
-        correct_answers = sum(
-            1 for q in all_questions 
-            if q.correct_option == answers.get(q.id)
-        )
-        
-        score = (correct_answers / total_questions) * 100
+
+        try:
+             answers = {int(k): v for k, v in answers.items()}
+        except (ValueError, TypeError):
+             return jsonify({'message': 'Invalid format for answers key'}), 400
+
+        correct_answers = 0
+        response_list = []
+        questions_for_ai = []
+
+        for q in all_questions:
+             selected_option = answers.get(q.id)
+             response_list.append(selected_option)
+             is_correct = (q.correct_option == selected_option)
+             if is_correct:
+                 correct_answers += 1
+             questions_for_ai.append({
+                 'question': q.question_statement,
+                 'selected_option': selected_option if selected_option is not None else "Not Answered",
+                 'correct_option': q.correct_option,
+             })
+
+        score_percentage = (correct_answers / total_questions) * 100 if total_questions > 0 else 0
         user_id = get_jwt_identity()
-        
-        response_list = [answers.get(q.id) for q in all_questions]
-        quiz_score = Score(user_id=user_id, quiz_id=quiz.id, total_score=score, responses=str(response_list))
+
+        # --- Generate AI Report ---
+        ai_report_json_string = generate_ai_report(
+            quiz_title=quiz.title,
+            questions_data=questions_for_ai,
+            score_percentage=score_percentage
+        )
+
+        # --- Save Score and Report to Database ---
+        quiz_score = Score(
+            user_id=user_id,
+            quiz_id=quiz.id,
+            total_score=score_percentage,
+            responses=str(response_list), # Store as string representation of list
+            ai_report=ai_report_json_string # Store the generated JSON string
+        )
         db.session.add(quiz_score)
-        db.session.commit()
-        print("Received answers:", answers)
-        print("Question correct options:", {q.id: q.correct_option for q in all_questions})
+        db.session.commit() # Commit to save the score and get its ID
+
+        # --- Return ONLY essential info ---
         return jsonify({
-            'score': score,
+            'message': 'Quiz submitted successfully.',
+            'score': score_percentage,
             'correct_answers': correct_answers,
             'total_questions': total_questions,
-            'score_id': quiz_score.id
+            'score_id': quiz_score.id # Crucial: return the ID for the next step
         }), 201
 
 
@@ -955,4 +1169,158 @@ def init_routes(app):
    
     
    
-   
+    # new ai report page end points
+    @app.route('/api/user/performance-data', methods=['GET'])
+    @jwt_required()
+    @jwt_valid_token
+    def get_user_performance_data():
+        user_id = get_jwt_identity()
+        user = User.query.get(user_id)
+        
+        if not user:
+            return jsonify({'message': 'User not found'}), 404
+
+        # Get all scores for the user
+        scores = Score.query.filter_by(user_id=user_id).all()
+        
+        if not scores:
+            return jsonify({
+                'user': {
+                    'full_name': user.full_name,
+                    'email': user.email
+                },
+                'message': 'No quiz attempts recorded.',
+                'raw_data_for_ai': 'No quiz attempts recorded.'
+            }), 200
+
+        # Calculate overall performance metrics
+        total_score = sum(score.total_score for score in scores)
+        overall_average_score = total_score / len(scores) if scores else 0
+        
+        # Get unique quizzes attempted
+        quiz_ids = set(score.quiz_id for score in scores)
+        quizzes = Quiz.query.filter(Quiz.id.in_(quiz_ids)).all()
+        
+        # Get chapters and subjects covered
+        chapter_ids = set(quiz.chapter_id for quiz in quizzes)
+        chapters = Chapter.query.filter(Chapter.id.in_(chapter_ids)).all()
+        
+        subject_ids = set(chapter.subject_id for chapter in chapters)
+        subjects = Subject.query.filter(Subject.id.in_(subject_ids)).all()
+        
+        # Calculate per-chapter performance
+        chapter_performance = {}
+        for chapter in chapters:
+            chapter_quizzes = [quiz for quiz in quizzes if quiz.chapter_id == chapter.id]
+            chapter_quiz_ids = [quiz.id for quiz in chapter_quizzes]
+            chapter_scores = [score for score in scores if score.quiz_id in chapter_quiz_ids]
+            
+            if chapter_scores:
+                avg_score = sum(score.total_score for score in chapter_scores) / len(chapter_scores)
+                last_attempt = max(score.timestamp_of_attempt for score in chapter_scores)
+                
+                subject = next((s for s in subjects if s.id == chapter.subject_id), None)
+                subject_name = subject.name if subject else "Unknown Subject"
+                
+                chapter_performance[chapter.id] = {
+                    'chapter_id': chapter.id,
+                    'chapter_name': chapter.name,
+                    'subject_id': chapter.subject_id,
+                    'subject_name': subject_name,
+                    'average_score': avg_score,
+                    'quizzes_taken': len(chapter_scores),
+                    'last_attempt': last_attempt.isoformat()
+                }
+        
+        # Sort chapters by performance (weakest first)
+        weakest_chapters = sorted(
+            chapter_performance.values(),
+            key=lambda x: x['average_score']
+        )
+        
+        # Prepare raw data for AI analysis
+        raw_data = f"""
+        User: {user.full_name}
+        Total Quiz Attempts: {len(scores)}
+        Overall Average Score: {overall_average_score:.2f}%
+        
+        Chapter Performance:
+        {', '.join(f"{chapter['chapter_name']} ({chapter['subject_name']}): {chapter['average_score']:.2f}% ({chapter['quizzes_taken']} attempts)" for chapter in chapter_performance.values())}
+        
+        Recent Scores:
+        {', '.join(f"Quiz {score.quiz_id}: {score.total_score:.2f}%" for score in sorted(scores, key=lambda x: x.timestamp_of_attempt, reverse=True)[:5])}
+        """
+        
+        # Prepare the response
+        response_data = {
+            'user': {
+                'full_name': user.full_name,
+                'email': user.email
+            },
+            'performance': {
+                'quizzes_taken': len(scores),
+                'overall_average_score': overall_average_score,
+                'total_study_time_seconds': sum(score.total_score for score in scores) * 60, # Estimate study time
+            },
+            'breakdown': {
+                'weakest_chapters': weakest_chapters[:5],  # Top 5 weakest chapters
+            },
+            'raw_data_for_ai': raw_data
+        }
+        
+        return jsonify(response_data), 200
+
+# Add another endpoint for AI insights
+    @app.route('/api/user/ai-insights', methods=['POST'])
+    @jwt_required()
+    @jwt_valid_token
+    def get_user_ai_insights():
+        data = request.get_json()
+        performance_data = data.get('performance_data')
+        
+        if not performance_data:
+            return jsonify({'error': 'No performance data provided'}), 400
+        
+        try:
+            prompt = f"""
+            You are an expert academic advisor and quiz performance analyst.
+            Analyze the following user performance data from a quiz platform and generate a detailed, encouraging, and actionable report.
+
+            The user's performance data is:
+            --- START DATA ---
+            {performance_data}
+            --- END DATA ---
+
+            Based **only** on the data provided above, generate a report with the following sections using Markdown formatting:
+
+            ## Performance Summary
+            Provide a brief overview of the user's overall performance, mentioning the average score and number of quizzes taken. Maintain an encouraging tone.
+
+            ## Key Strengths
+            Identify 1-2 subject areas or chapter topics where the user demonstrates strong performance (higher average scores). Be specific. If performance is consistent or low everywhere, acknowledge that honestly but gently.
+
+            ## Areas for Improvement
+            Identify the top 2-3 subject areas or chapter topics where the user's scores are lowest. Clearly state these are opportunities for growth.
+
+            ## Actionable Suggestions & Strategies
+            Provide specific, actionable advice based on the weak areas identified. Suggest:
+            * Specific chapters/subjects to prioritize for review.
+            * Possible study techniques (e.g., "review notes for [Chapter X]", "try practice problems on [Subject Y]", "revisit the basics of [Topic Z]").
+            * Encourage consistent practice.
+            * DO NOT suggest external resources unless specifically asked or implied by the data (focus on improving within the platform's content).
+
+            ## Statistical Snapshot
+            Present a few key statistics clearly (e.g., Overall Average Score, Total Quizzes, Weakest Chapter Score, Strongest Chapter Score).
+            """
+            
+            response = model.generate_content(prompt)
+            ai_content = response.text
+            
+            return jsonify({
+                'content': ai_content
+            }), 200
+        except Exception as e:
+            print(f"Error generating AI insights: {e}")
+            return jsonify({
+                'error': f"Failed to generate AI insights: {str(e)}"
+            }), 500

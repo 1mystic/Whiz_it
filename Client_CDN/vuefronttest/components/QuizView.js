@@ -171,6 +171,10 @@ const QuizView = {
         },
     
         submitQuiz() {
+            this.isSubmitting = true
+            const submitButton = event.target
+            submitButton.innerHTML = 'Submitting Quiz...'
+            submitButton.disabled = true
             clearInterval(this.timer)
             const quizId = this.$route.params.quizid
         
@@ -293,16 +297,19 @@ const qvstyle = `
         padding: 0.35rem 1rem;
 }
 
-    .timer {
-        background: linear-gradient(90deg, rgba(88,181,136,1), rgba(68,161,116,1));;
-        color: white;
-        padding: 0.75rem 1.5rem;
-        border-radius: 0.5rem;
-        font-weight: 600;
-        font-family: Lexend Deca, sans-serif;
-        transition: background-color 0.3s;
-        border: 3px solid rgba(113, 141, 113, 0.67);
-    }
+.timer {
+    background-color: rgba(203, 245, 106, 0.26);
+    border : 5px solid rgba(78, 100, 49, 0.33);
+    color:rgba(72, 122, 60, 0.66);
+    padding: 0.75rem 1.75rem;
+    border-radius: 0.5rem;
+    font-weight: 700;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.25rem;
+    transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+}
 
     .timer.warning {
         background-color: #DC3545;

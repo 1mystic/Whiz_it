@@ -3,7 +3,7 @@
 const signup = {
     template: `
     <div class="bg">    
-        <router-link to="/" class="brandtext2">  Whiz.up</router-link>
+        <router-link to="/" class="brandtext2">  Whiz.it</router-link>
         <div class="signup-container">
             <h2>Signup</h2>
             <form @submit.prevent="validateAndSignup">

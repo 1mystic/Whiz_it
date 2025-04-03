@@ -6,7 +6,7 @@ const login = {
     <div class="login_encloser">
 
    
-    <router-link to="/" class="brandtext2" >  Whiz.up</router-link>
+    <router-link to="/" class="brandtext2" >  Whiz.it</router-link>
     
     
         <div class="log_box">

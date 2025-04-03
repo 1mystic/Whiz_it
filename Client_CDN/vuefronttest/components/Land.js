@@ -1,7 +1,8 @@
 const Land = {
+    name: 'Land',
     template: `
 <div class="topsec">
-    <a class="brandtext">Whiz.up</a>
+    <a class="brandtext">Whiz.it</a>
 </div>     
 
 <div class="shape-blob"></div>
@@ -126,7 +127,7 @@ const Land = {
     </div>
 </section>
     `,
-    name: 'Land',
+    
     
     data() {
         return {

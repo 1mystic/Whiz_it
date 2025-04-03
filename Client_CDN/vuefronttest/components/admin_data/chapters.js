@@ -46,7 +46,7 @@ const chapters = {
            
             
                
-              <button @click="this.$store.dispatch('notify_user');">Notify</button>
+              
             <!-- Chapters Table -->
             <div class="admin_table_enc">
                 <table class="admin_table">

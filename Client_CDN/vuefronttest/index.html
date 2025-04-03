@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vue CDN App</title>
+
+
   
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
@@ -29,6 +31,9 @@
     <script src="
     https://cdn.jsdelivr.net/npm/vuex@4.1.0/dist/vuex.global.min.js
     "></script>
+
+
+
     
 </head>
 <body>
@@ -45,6 +50,10 @@
        <div> ERROR </div>
         <router-view :key="$route.fullPath"></router-view>
     </div>
+
+    <!-- ai report-->
+     <!-- In your index.html, replace the current marked script with: -->
+<script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -86,6 +95,7 @@
     <script src="./components/QuizView.js"></script>
     <script src="./components/Users/Explore.js"></script>  
     <script src="./components/Users/user_summary.js"></script>  
+    <script src="./components/Users/report.js"></script>
     
    
     

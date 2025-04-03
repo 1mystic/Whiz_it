@@ -255,7 +255,7 @@ const admin = {
                     font-size: 1.7rem;
                     font-family: 'Rubik', sans-serif;
                     "
-                    > Whiz.up </h5>
+                    > Whiz.it </h5>
                     
                 </div>
                

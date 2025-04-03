@@ -117,6 +117,7 @@ class Score(DBase):
     timestamp_of_attempt = db.Column(db.DateTime, default=datetime.now)
     responses = db.Column(db.Text, nullable=False)
     total_score = db.Column(db.Float, nullable=False)
+    ai_report = db.Column(db.Text, nullable=True)
    
 
 def init_db(app):

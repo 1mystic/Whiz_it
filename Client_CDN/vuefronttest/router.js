@@ -93,6 +93,11 @@ const router = VueRouter.createRouter({
                 name: 'profile',
                 meta: { requiresAuth: true, role: 'user' } 
             },
+            {   path: '/report',
+                component: report,
+                name: 'report',
+                meta: { requiresAuth: true, role: 'user' }
+            },
         ]
 
     },

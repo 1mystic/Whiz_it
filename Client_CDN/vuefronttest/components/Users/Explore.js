@@ -36,16 +36,14 @@ const Explore = {
               <h2 class="section-title">Featured Quizzes</h2>
               <div
                 class="slider-container"
-                id="quizSlider"
-                @mouseenter="pauseAnimation"
-                @mouseleave="resumeAnimation"
+                id="quizSlider"               
                 ref="sliderContainer"
               >
                 <div class="slider-navigation">
-                  <button @click="navigatePrev" class="slider-nav slider-prev" id="sliderPrev">
+                  <button class="slider-nav slider-prev" id="sliderPrev">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
                   </button>
-                  <button @click="navigateNext" class="slider-nav slider-next" id="sliderNext">
+                  <button class="slider-nav slider-next" id="sliderNext">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                   </button>
                 </div>
@@ -120,7 +118,7 @@ const Explore = {
             <h2 class="section-title"></h2>
             <div class="journey-container">
 
-                <div v-for="score in userScores" :key="score.id"  class="journey-card">
+                <div @click="score_summary(score.id)" v-for="score in userScores" :key="score.id"  class="journey-card">
                     <div class="journey-image">
                         <div class="score_card_id">{{ score.id }}</div>
                     </div>
@@ -132,9 +130,7 @@ const Explore = {
                         </div>
                         <p class="exp_progress-label">Progress: {{ score.score }}%</p>
                     </div>
-                </div>
-                
-                
+                              
             </div>
             
             
@@ -222,6 +218,11 @@ async created() {
 },
 
   methods: {
+
+    score_summary(Id){
+      window.open(this.$router.resolve({ path: `/scores/${Id}` }).href, '_blank')
+  },
+
     formatDate(dateString) {
       return new Date(dateString).toLocaleDateString('en-US', {
           day: 'numeric',
@@ -330,155 +331,7 @@ async created() {
       filterQuizzes() {
           this.fetchQuizzes();
       },
-    // --- Initialization & Setup ---
-    setupSlider() {
-      
-
-        this.$nextTick(() => {
-            this.calculateCardWidth();
-            // Check calculation success before duplicating/animating
-            if (this.cardWidthIncludingGap > 0 && !this.initialCardsDuplicated) {
-                this.duplicateInitialCards(); // Duplicates cards for infinite effect
-                this.startAnimation();       // Starts the auto-scroll
-                this.initialCardsDuplicated = true;
-            } else if (this.cardWidthIncludingGap <= 0) {
-                 console.error("Card width calculation failed, cannot initialize slider.");
-            }
-            window.addEventListener('resize', this.handleResize);
-        });
-    },
-
-    calculateCardWidth() {
-      const sliderTrack = this.$refs.sliderTrack;
-       // Extra check for refs just in case
-       if (!sliderTrack || !sliderTrack.children || !sliderTrack.children.length) {
-           console.warn("Slider track or cards not available for width calculation.");
-           this.cardWidthIncludingGap = 0;
-           return;
-       }
-      const firstCard = sliderTrack.querySelector('.quiz-card');
-      if (!firstCard) {
-            console.warn("First card not found for width calculation.");
-            this.cardWidthIncludingGap = 0;
-            return;
-        }
-
-      const cardStyle = window.getComputedStyle(firstCard);
-      const cardWidth = firstCard.offsetWidth;
-
-      let cardGap = 0;
-        // Check if there's more than one card to calculate gap
-        if(sliderTrack.children.length > 1) {
-            // Make sure the second child is indeed a quiz-card and not something else
-            const secondCard = sliderTrack.children[1];
-            if (secondCard && secondCard.classList.contains('quiz-card')) {
-                 // Calculate gap using offsetLeft, robust way
-                cardGap = secondCard.offsetLeft - (firstCard.offsetLeft + firstCard.offsetWidth);
-            } else {
-                 // If second element is not a card, fallback (might happen during cloning/manipulation)
-                cardGap = parseFloat(cardStyle.marginRight) || 16; // Use marginRight as fallback
-                 console.warn("Second element not a card, using margin fallback for gap:", cardGap);
-            }
-
-        } else {
-            // If only one card (or cloned cards aren't added yet), use margin fallback
-            cardGap = parseFloat(cardStyle.marginRight) || 16;
-             console.warn("Only one card found, using margin fallback for gap:", cardGap);
-        }
-
-      // Ensure gap is not negative (can happen with weird CSS or calculation glitches)
-      this.cardWidthIncludingGap = cardWidth + Math.max(0, cardGap);
-      console.log(`Calculated card width: ${cardWidth}, gap: ${cardGap}, total: ${this.cardWidthIncludingGap}`);
-    },
-
-
-
-    // --- Navigation ---
-    navigate(direction) {
-        const sliderTrack = this.$refs.sliderTrack;
-        if (this.isManuallyNavigating || !sliderTrack || this.cardWidthIncludingGap <= 0) {
-            console.warn("Navigation blocked: Already navigating, no track, or no card width.");
-            return;
-        }
-
-        console.log(`Navigating ${direction}...`);
-        this.isManuallyNavigating = true;
-        this.isPaused = true; // Ensure paused during manual nav
-
-        cancelAnimationFrame(this.animationFrameId); // Stop auto-scroll
-
-        sliderTrack.style.transition = `transform ${this.transitionDuration / 1000}s ease`;
-
-        if (direction === 'next') {
-            this.position -= this.cardWidthIncludingGap;
-            sliderTrack.style.transform = `translateX(${this.position}px)`;
-
-            setTimeout(() => {
-                const firstCard = sliderTrack.querySelector('.quiz-card');
-                if (firstCard) {
-                    sliderTrack.appendChild(firstCard);
-                    this.position += this.cardWidthIncludingGap;
-                    sliderTrack.style.transition = 'none';
-                    sliderTrack.style.transform = `translateX(${this.position}px)`;
-                }
-                this.isManuallyNavigating = false;
-                 // Resume auto only if mouse is not currently over the element
-                 if (!this.$refs.sliderContainer.matches(':hover')) {
-                    this.resumeAnimation(); // Resume auto-scroll (sets isPaused = false)
-                 }
-                 this.startAnimation(); // Important: Restart the rAF loop
-                 console.log("Navigate next complete.");
-
-            }, this.transitionDuration);
-
-        } else if (direction === 'prev') {
-            const lastCard = sliderTrack.querySelector('.quiz-card:last-child');
-            if (!lastCard) {
-                console.error("Cannot navigate prev: Last card not found.");
-                this.isManuallyNavigating = false;
-                this.isPaused = this.$refs.sliderContainer.matches(':hover'); // Re-evaluate pause based on hover
-                this.startAnimation();
-                return;
-            }
-
-            // 1. Instant DOM move & position adjustment (no transition)
-            sliderTrack.insertBefore(lastCard, sliderTrack.firstChild);
-            this.position -= this.cardWidthIncludingGap;
-            sliderTrack.style.transition = 'none';
-            sliderTrack.style.transform = `translateX(${this.position}px)`;
-
-            // 2. Force browser repaint/reflow (often needed after instant style change before transition)
-            // Reading offsetHeight is a common trick, but requestAnimationFrame often works too.
-            // sliderTrack.offsetHeight;
-
-            // 3. Use rAF or tiny timeout to apply transition *after* instant move
-             requestAnimationFrame(() => {
-                  // 4. Apply transition and slide smoothly to the target position
-                this.position += this.cardWidthIncludingGap; // Calculate target position
-                sliderTrack.style.transition = `transform ${this.transitionDuration / 1000}s ease`;
-                sliderTrack.style.transform = `translateX(${this.position}px)`;
-
-                // 5. Cleanup after transition ends
-                setTimeout(() => {
-                    sliderTrack.style.transition = 'none';
-                    this.isManuallyNavigating = false;
-                     if (!this.$refs.sliderContainer.matches(':hover')) {
-                        this.resumeAnimation(); // Resume auto-scroll if needed
-                     }
-                     this.startAnimation(); // Restart the rAF loop
-                     console.log("Navigate prev complete.");
-                }, this.transitionDuration);
-            });
-        }
-    },
-
-    navigatePrev() {
-        this.navigate('prev');
-    },
-
-    navigateNext() {
-        this.navigate('next');
-    },
+    
     selectSubject(subject) {
       this.selectedSubject = this.selectedSubject === subject.id ? null : subject.id;
       this.selectedChapter = null; // Deselect chapter when subject changes
@@ -495,12 +348,8 @@ async created() {
     this.fetchChapters();
     this.fetchQuizzes();
     // Initialize the slider
-    this.animate();
-    this.setupSlider();
+   
     
-    console.log("QuizSlider component mounted");
-    // Use setTimeout to ensure parent layout is stable, especially if container width depends on it
-    setTimeout(this.setupSlider, 50);
   },
 
   // Use beforeUnmount (Vue 3) or beforeDestroy (Vue 2)
@@ -796,6 +645,14 @@ top: 2.7rem;
   overflow: hidden;
   display: flex;
   background-color: rgba(255, 255, 255, 0.8);
+}
+.journey-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  background-color: rgba(255, 177, 163, 0.35);
+  border: 5px solid rgba(73, 70, 69, 0.35);
 }
 
 .journey-image {
