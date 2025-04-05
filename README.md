@@ -1,2 +1,3 @@
 # Whiz_it
-Dynamic quiz app mad2
+Full stack quiz master site with caching, scheduled tasks, email reports etc 
+Youtube link - https://youtu.be/TfYUGgWR7j4
