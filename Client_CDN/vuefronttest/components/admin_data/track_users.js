@@ -207,7 +207,7 @@ const track_users = {
             try {
                 this.loading = true;
                 const token = localStorage.getItem('token');
-                const response = await fetch('http://127.0.0.1:5000/api/allusers/scores', {
+                const response = await fetch('https://whiz-it.onrender.com/api/allusers/scores', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -283,7 +283,7 @@ const track_users = {
         async fetch_user(userid) {
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch(`http://127.0.0.1:5000/api/user/${userid}`, {
+                const response = await fetch(`https://whiz-it.onrender.com/api/user/${userid}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -308,7 +308,7 @@ const track_users = {
                 if (this.is_user_blocked) {
                     try {
                         
-                        const response = await fetch(`http://127.0.0.1:5000/api/unblock_user/${user_id}`, {
+                        const response = await fetch(`https://whiz-it.onrender.com/api/unblock_user/${user_id}`, {
                             method: 'GET',
                             headers: {
                                 'Authorization': `Bearer ${token}`
@@ -322,7 +322,7 @@ const track_users = {
                     }
                 } else {
                     try{
-                        const response = await fetch(`http://127.0.0.1:5000/api/block_user/${user_id}`, {
+                        const response = await fetch(`https://whiz-it.onrender.com/api/block_user/${user_id}`, {
                             method: 'GET',
                             headers: {
                                 'Authorization': `Bearer ${token}`
