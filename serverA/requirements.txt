@@ -10,3 +10,4 @@ celery==5.2.7
 Werkzeug==3.0.0
 gunicorn
 python-dotenv
+google-generativeai
