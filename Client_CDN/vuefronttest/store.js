@@ -60,7 +60,7 @@ const store = new Vuex.Store({
 
         async loginUser({ commit }, credentials) {
             try {
-                const response = await fetch('http://127.0.0.1:5000/login', {
+                const response = await fetch('https://whiz-it.onrender.com/login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -85,7 +85,7 @@ const store = new Vuex.Store({
         },
         async logoutUser({ commit, state }) {
             try {
-                await fetch('http://127.0.0.1:5000/logout', {
+                await fetch('https://whiz-it.onrender.com/logout', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
