@@ -198,7 +198,7 @@ template: `
           throw new Error('Authentication token not found.');
         }
 
-        const response = await fetch('http://127.0.0.1:5000/api/user/performance-data', {
+        const response = await fetch('https://whiz-it.onrender.com/api/user/performance-data', {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -240,7 +240,7 @@ template: `
           throw new Error('Authentication token not found.');
         }
 
-        const response = await fetch('http://127.0.0.1:5000/api/user/ai-insights', {
+        const response = await fetch('https://whiz-it.onrender.com/api/user/ai-insights', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
