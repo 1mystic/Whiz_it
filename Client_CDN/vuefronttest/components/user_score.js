@@ -102,7 +102,7 @@ const Scores = {
             this.isLoading = true;
             this.error = null; // Reset error
 
-            fetch(`http://127.0.0.1:5000/api/scores/${scoreId}/full_report`, {
+            fetch(`https://whiz-it.onrender.com/api/scores/${scoreId}/full_report`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`,
                     'Content-Type': 'application/json'
