@@ -225,7 +225,7 @@ const usummary = {
                 
                 this.notify({ type: 'info', message: 'Export started. You will receive an email when it\'s ready.' });
                 const token = localStorage.getItem('token');
-                const response = await fetch('http://127.0.0.1:5000/api/export-quiz-history', {
+                const response = await fetch('https://whiz-it.onrender.com/api/export-quiz-history', {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -244,7 +244,7 @@ const usummary = {
             async exportToCSV() {
                 this.notify({ type: 'info', message: 'Export started. The file will download automatically.' });
                 const token = localStorage.getItem('token');
-                const response = await fetch('http://127.0.0.1:5000/api/export_csv', {
+                const response = await fetch('https://whiz-it.onrender.com/api/export_csv', {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,
