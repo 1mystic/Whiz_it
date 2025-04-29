@@ -244,7 +244,7 @@ async created() {
       },
       async fetchUserScores() {
         try {
-            const response = await fetch('http://127.0.0.1:5000/api/users/scores', {
+            const response = await fetch('https://whiz-it.onrender.com/api/users/scores', {
                 headers: {
                     'Authorization': `Bearer ${this.$store.state.token}`
                 }
@@ -260,7 +260,7 @@ async created() {
     },
       async fetchSubjects() {
           try {
-              const response = await fetch('http://127.0.0.1:5000/api/subjects', {
+              const response = await fetch('https://whiz-it.onrender.com/api/subjects', {
                   headers: {
                       'Authorization': `Bearer ${this.$store.state.token}`
                   }
@@ -274,7 +274,7 @@ async created() {
       },
       async fetchChapters() {
           try {
-              const response = await fetch('http://127.0.0.1:5000/api/chapters', {
+              const response = await fetch('https://whiz-it.onrender.com/api/chapters', {
                   headers: {
                       'Authorization': `Bearer ${this.$store.state.token}`
                   }
@@ -288,7 +288,7 @@ async created() {
       },
       async fetchQuizzes() {
           try {
-              const response = await fetch('http://127.0.0.1:5000/api/quizzes', {
+              const response = await fetch('https://whiz-it.onrender.com/api/quizzes', {
                   headers: {
                       'Authorization': `Bearer ${this.$store.state.token}`
                   }
