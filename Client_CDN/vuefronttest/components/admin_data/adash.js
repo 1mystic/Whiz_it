@@ -130,8 +130,8 @@ const adash = {
         const headers = { 'Authorization': `Bearer ${token}` };
         try {
           const [scoresData, quizzesData] = await Promise.all([
-            fetch('http://127.0.0.1:5000/api/allusers/scores', { headers }).then(r => r.json()),
-            fetch('http://127.0.0.1:5000/api/quizzes', { headers }).then(r => r.json())
+            fetch('https://whiz-it.onrender.com/api/allusers/scores', { headers }).then(r => r.json()),
+            fetch('https://whiz-it.onrender.com/api/quizzes', { headers }).then(r => r.json())
           ]);
           this.scores = scoresData;
           this.quizzes = quizzesData;
