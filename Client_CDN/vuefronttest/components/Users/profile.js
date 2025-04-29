@@ -25,7 +25,7 @@ const profile = {
   },
   methods: {
     fetchLeaderboard() {
-      fetch('http://127.0.0.1:5000/api/leaderboard')
+      fetch('https://whiz-it.onrender.com/api/leaderboard')
         .then(response => response.json())
         .then(data => {
           this.leaderboard = data;
@@ -49,7 +49,7 @@ const profile = {
 
     fetchProfile() {
       const usern = this.$store.state.user;         
-      fetch(`http://127.0.0.1:5000/api/user/${usern}`)
+      fetch(`https://whiz-it.onrender.com/api/user/${usern}`)
         .then(response => response.json())
         .then(data => {
           this.name = data.name || 'Guest';
