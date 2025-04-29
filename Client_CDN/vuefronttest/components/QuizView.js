@@ -185,7 +185,7 @@ const QuizView = {
                 }
             })
         
-            fetch(`http://127.0.0.1:5000/api/quizzes/${quizId}/submit`, {
+            fetch(`https://whiz-it.onrender.com/api/quizzes/${quizId}/submit`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -222,7 +222,7 @@ const QuizView = {
                 return
             }
             
-            fetch(`http://127.0.0.1:5000/api/quizzes/${quizId}`, {
+            fetch(`https://whiz-it.onrender.com/api/quizzes/${quizId}`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
