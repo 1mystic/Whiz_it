@@ -328,7 +328,7 @@ const admin = {
             });
         },
         admin_stats() {
-            fetch('http://127.0.0.1:5000/api/admin_dash', {
+            fetch('https://whiz-it.onrender.com/api/admin_dash', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
