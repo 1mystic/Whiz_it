@@ -242,7 +242,7 @@ const chapters = {
         // CRUD operations
         async fetchSubjects() {
             try {
-                const response = await fetch('http://127.0.0.1:5000/api/subjects', {
+                const response = await fetch('https://whiz-it.onrender.com/api/subjects', {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
@@ -258,7 +258,7 @@ const chapters = {
         async fetchChapters() {
             this.loading = true;
             try {
-                const response = await fetch('http://127.0.0.1:5000/api/chapters', {
+                const response = await fetch('https://whiz-it.onrender.com/api/chapters', {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
@@ -281,7 +281,7 @@ const chapters = {
                 return this.showNotification('error', 'Chapter name and subject are required');
             }
             try {
-                const response = await fetch('http://127.0.0.1:5000/api/chapters', {
+                const response = await fetch('https://whiz-it.onrender.com/api/chapters', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -308,7 +308,7 @@ const chapters = {
         },
         async updateChapter() {
             try {
-                const response = await fetch(`http://127.0.0.1:5000/api/chapters/${this.currentChapter.id}`, {
+                const response = await fetch(`https://whiz-it.onrender.com/api/chapters/${this.currentChapter.id}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -337,7 +337,7 @@ const chapters = {
             if (!confirm('Are you sure you want to delete this chapter?')) return;
 
             try {
-                const response = await fetch(`http://127.0.0.1:5000/api/chapters/${id}`, {    
+                const response = await fetch(`https://whiz-it.onrender.com/api/chapters/${id}`, {    
                     method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -362,7 +362,7 @@ const chapters = {
         async addQuiz() {
             try {
                 
-                const response = await fetch('http://127.0.0.1:5000/api/quizzes', {
+                const response = await fetch('https://whiz-it.onrender.com/api/quizzes', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
